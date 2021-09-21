@@ -25,8 +25,6 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", False)
 
-ON_HEROKU = os.environ.get("ON_HEROKU", False)
-
 ALLOWED_HOSTS = []
 
 if DEBUG:
@@ -210,8 +208,6 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "build/static")]
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "storage")
-
 # DRF
 DEFAULT_RENDERER_CLASSES = ("rest_framework.renderers.JSONRenderer",)
 
@@ -229,19 +225,6 @@ REST_FRAMEWORK = {
 }
 CSRF_COOKIE_NAME = "csrftoken"
 
-
-# Used for run logs, uploaded files etc.
-USE_S3_COMPAT_STORAGE = os.environ.get("USE_S3_COMPAT_STORAGE", False)
-if USE_S3_COMPAT_STORAGE:
-    DEFAULT_FILE_STORAGE = "core.file_storages.S3MediaStorage"
-    AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
-    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
-    AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
-    AWS_DEFAULT_ACL = "private"
-    AWS_S3_REGION_NAME = os.environ.get("S3_REGION_NAME")
-    AWS_S3_ENDPOINT_URL = os.environ.get("S3_ENDPOINT_URL")
-
-
 # Allauth
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_AUTHENTICATION_METHOD = "username"
@@ -249,9 +232,10 @@ ACCOUNT_EMAIL_REQUIRED = False
 
 
 # Activate Django-Heroku.
+# Untested
+ON_HEROKU = os.environ.get("ON_HEROKU", False)
 if ON_HEROKU:
     import django_heroku
-
     django_heroku.settings(locals())
 
 # CELERY
@@ -260,9 +244,6 @@ CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TASK_SERIALIZER = "json"
-
-# FLUXIS
-USE_LAMBDA = False
 
 # CACHING
 # Used to cache run data
@@ -275,3 +256,18 @@ CACHES = {
         },
     }
 }
+
+# FLUXIS
+FLUXIS_STORAGE_DIRECTORY = os.environ.get("FLUXIS_STORAGE_DIRECTORY", "storage")
+USE_LAMBDA = False
+
+# Used for run logs, uploaded files etc.
+USE_S3_COMPAT_STORAGE = os.environ.get("USE_S3_COMPAT_STORAGE", False)
+if USE_S3_COMPAT_STORAGE:
+    DEFAULT_FILE_STORAGE = "core.file_storages.S3MediaStorage"
+    AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
+    AWS_DEFAULT_ACL = "private"
+    AWS_S3_REGION_NAME = os.environ.get("S3_REGION_NAME")
+    AWS_S3_ENDPOINT_URL = os.environ.get("S3_ENDPOINT_URL")

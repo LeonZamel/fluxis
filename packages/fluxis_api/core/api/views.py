@@ -199,8 +199,6 @@ class ConstantValueDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 # TODO: Finish http endpoint
-
-
 class HttpEndpointDetail(APIView):
     def post(self, *args, **kwargs):
         req_object = None
