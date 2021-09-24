@@ -7,7 +7,7 @@ from googleapiclient import discovery
 from googleapiclient.discovery import build
 
 from fluxis_engine.core.credentials_config import CredentialsConfig
-from fluxis_engine.core.node_functions.node_function import NodeFunction
+from fluxis_engine.core.node_function import NodeFunction
 from fluxis_engine.core.parameter_config import ParameterConfig, ParameterType
 from fluxis_engine.core.port_config import PortConfig
 

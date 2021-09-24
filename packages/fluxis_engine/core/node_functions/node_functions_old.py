@@ -7,7 +7,7 @@ import pandas as pd
 import requests
 from pushbullet import Pushbullet
 
-from fluxis_engine.core.node_functions.node_function import NodeFunction
+from fluxis_engine.core.node_function import NodeFunction
 
 
 # Triggers
@@ -220,13 +220,13 @@ class GetArrayValueAtIndexFunction(NodeFunction):
         out_ports["value"] = in_ports["array"][in_ports["index"]]
 
 
-"""
 class BinaryMathFunctionsFunction(NodeFunction):
     in_ports_conf = {"operator1": "number", "operator2": "number"}
     out_ports_conf = {"result": "number"}
     parameters = {"function_type": "choice"}
-    parameter_choices = {"function_type": (
-        "add +", "subtract -", "multiply *", "divide /")}
+    parameter_choices = {
+        "function_type": ("add +", "subtract -", "multiply *", "divide /")
+    }
 
     def __init__(self, function_type):
         super().__init__(self.in_ports_conf, self.out_ports_conf)
@@ -238,7 +238,9 @@ class BinaryMathFunctionsFunction(NodeFunction):
             "divide /": lambda op1, op2: op1 / op2,
         }
 
-    def run(self, in_ports: dict, out_ports: dict, in_ports_ref: dict, out_ports_ref: dict):
+    def run(
+        self, in_ports: dict, out_ports: dict, in_ports_ref: dict, out_ports_ref: dict
+    ):
         out_ports["result"] = self.exec_functions[self.function_type](
-            in_ports["operator1"], in_ports["operator2"])
-"""
+            in_ports["operator1"], in_ports["operator2"]
+        )

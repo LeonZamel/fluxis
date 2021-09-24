@@ -1,4 +1,4 @@
-from .node_functions.node_function import NodeFunction
+from .node_function import NodeFunction
 from .port import InPort, OutPort
 
 
@@ -20,11 +20,12 @@ class Node(object):
         for port in function.in_ports_conf:
             if port.key == "trigger":
                 raise ValueError(
-                    "'trigger' is a reserved port name for the optional trigger port")
+                    "'trigger' is a reserved port name for the optional trigger port"
+                )
             self.in_ports[port.key] = InPort(self)
 
         if optional_trigger_port:
-            self.in_ports['trigger'] = InPort(self)
+            self.in_ports["trigger"] = InPort(self)
 
         for port in function.out_ports_conf:
             self.out_ports[port.key] = OutPort(self)
@@ -34,24 +35,24 @@ class Node(object):
         Callback when an input port receives data
         """
         if len(self.in_ports) == 0:
-            # In case the node has not in_ports we need to prevent an infinite call
+            # In case the node has no in_ports we need to prevent an infinite call
             return
 
-        # To run, all our input ports must have data
+        # To run, all input ports must have data
         if all((port.has_data for port in self.in_ports.values())):
             self.flow.add_to_run_queue(self)
 
     def run(self):
-        in_port_data = {key: port.data for (
-            key, port) in self.in_ports.items()}
+        in_port_data = {key: port.data for (key, port) in self.in_ports.items()}
         out_port_data = {key: None for (key, port) in self.out_ports.items()}
 
         error = self.function.pre_run(in_port_data, self.in_ports)
         if error:
             return (None, error)
 
-        error = self.function.run(in_port_data, out_port_data,
-                                  self.in_ports, self.out_ports)
+        error = self.function.run(
+            in_port_data, out_port_data, self.in_ports, self.out_ports
+        )
         if error:
             return (None, error)
 

@@ -1,6 +1,7 @@
 import queue
 import time
 from collections import defaultdict
+from logging import getLogger
 
 from fluxis_engine.core.node_functions.node_functions import NODE_FUNCTIONS
 
@@ -16,6 +17,8 @@ from .observer.eventtypes import (
 from .observer.observable import Observable
 from .port import InPort, OutPort
 from .run_end_reasons import FlowRunEndReason, NodeRunEndReason
+
+logger = getLogger(__name__)
 
 
 class Flow(Observable):
@@ -68,7 +71,7 @@ class Flow(Observable):
             node_run_count += 1
             self.fire(NodeRunEndEvent(node.id, output, NodeRunEndReason.DONE))
 
-        print(
+        logger.info(
             "Ran "
             + str(node_run_count)
             + " nodes in "
@@ -81,14 +84,6 @@ class Flow(Observable):
         # Function called when an outport wants to send data to all receiving ports
 
         receiving_ports = port.node.flow.edges[port]
-        """
-        # We put the iterate functions onto the stack first, so they will be executed after all
-        # other receiving ports
-        iterate_functions_ports = [
-            receive_port for receive_port in receiving_ports if isinstance(receive_port.node.function, IterateFunction)]
-        for receive_port in iterate_functions_ports:
-            receive_port.data = data
-        """
         for receive_port in receiving_ports:
             # if receive_port not in iterate_functions_ports:
             receive_port.data = data
@@ -158,25 +153,5 @@ class FlowBuilder:
                 edge["to_port"]["node"],
                 edge["to_port"]["key"],
             )
-
-            """
-            for node_id in start_data:
-                # Add start values
-                for port_key in start_data[node_id]:
-                    g.get_node_by_id(
-                        node_id).in_ports[port_key].data = start_data[node_id][port_key]
-            """
-
-        """
-            print(e)
-            print("Couldn't build flow")
-            # Couldn't build flow, this should not happen
-            db_flowrun.successful = False
-            db_flowrun.datetime_start = timezone.now()
-            db_flowrun.datetime_end = timezone.now()
-            db_flowrun.message = "Internal error. Please contact support"
-            db_flowrun.save()
-            return
-        """
 
         return g

@@ -1,5 +1,5 @@
 from fluxis_engine.core.credentials_config import CredentialsConfig
-from fluxis_engine.core.node_functions.node_function import NodeFunction
+from fluxis_engine.core.node_function import NodeFunction
 from fluxis_engine.core.port_config import PortConfig, PortType
 from sqlalchemy import create_engine
 from sqlalchemy.engine.url import URL

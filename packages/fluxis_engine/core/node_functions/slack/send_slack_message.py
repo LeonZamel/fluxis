@@ -2,7 +2,7 @@ import requests
 
 import json
 
-from fluxis_engine.core.node_functions.node_function import NodeFunction
+from fluxis_engine.core.node_function import NodeFunction
 from fluxis_engine.core.parameter_config import ParameterConfig
 from fluxis_engine.core.port_config import PortConfig
 from fluxis_engine.core.credentials_config import CredentialsConfig

@@ -12,8 +12,11 @@ from django.conf import settings
 
 import core.models
 
+
 def get_path_for_noderun(flow_id, flowrun_id, node_id):
-    return os.path.join(settings.FLUXIS_STORAGE_DIRECTORY, flow_id, flowrun_id, node_id)
+    return os.path.join(
+        settings.FLUXIS_STORAGE_DIRECTORY, str(flow_id), str(flowrun_id), str(node_id)
+    )
 
 
 # Handles data formatting and writing

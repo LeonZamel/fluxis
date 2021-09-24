@@ -707,7 +707,7 @@ class FlowRunScheduleSerializer(serializers.ModelSerializer):
         periodic_task = PeriodicTask.objects.create(
             name=f"{flow_id_str} created {now}",
             crontab=crontab,
-            task="core.tasks.dispatch_run_flow",
+            task="core.tasks.dispatch_scheduled_flowrun",
             args=json.dumps([flow_id_str]),
         )
         frs = FlowRunSchedule.objects.create(

@@ -1,6 +1,6 @@
 import json
 
-from fluxis_engine.core.node_functions.node_function import NodeFunction
+from fluxis_engine.core.node_function import NodeFunction
 from fluxis_engine.core.port_config import PortConfig
 
 

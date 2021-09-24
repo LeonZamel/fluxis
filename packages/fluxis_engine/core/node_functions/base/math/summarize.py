@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from fluxis_engine.core.node_functions.node_function import NodeFunction
+from fluxis_engine.core.node_function import NodeFunction
 from fluxis_engine.core.port_config import PortConfig, PortSuggestion, PortType
 
 from fluxis_engine.core.parameter_config import ParameterConfig, ParameterType

@@ -102,7 +102,7 @@ WSGI_APPLICATION = "fluxis_api.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
@@ -236,6 +236,7 @@ ACCOUNT_EMAIL_REQUIRED = False
 ON_HEROKU = os.environ.get("ON_HEROKU", False)
 if ON_HEROKU:
     import django_heroku
+
     django_heroku.settings(locals())
 
 # CELERY

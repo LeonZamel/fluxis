@@ -10,7 +10,7 @@ import gspread
 from gspread_dataframe import get_as_dataframe, set_with_dataframe
 
 from fluxis_engine.core.credentials_config import CredentialsConfig
-from fluxis_engine.core.node_functions.node_function import NodeFunction
+from fluxis_engine.core.node_function import NodeFunction
 from fluxis_engine.core.parameter_config import ParameterConfig, ParameterType
 from fluxis_engine.core.port_config import PortConfig, PortType
 

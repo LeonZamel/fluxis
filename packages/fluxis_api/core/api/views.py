@@ -5,38 +5,62 @@ from django.contrib.auth.models import AnonymousUser, User
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from requests_oauthlib import OAuth2Session
-from rest_framework import (authentication, exceptions, generics, permissions,
-                            status)
+from rest_framework import authentication, exceptions, generics, permissions, status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.adapter import NODE_CATEGORIES, NODE_FUNCTIONS_DEFINITIONS
-from core.models import (ConstantValue, Edge, Flow, FlowConfig, FlowRun,
-                         FlowRunSchedule, HttpEndpointTrigger, InPort, Node,
-                         NodeRun, OutPort, TimerTrigger, Trigger)
-from core.tasks import dispatch_run_flow
+from core.models import (
+    ConstantValue,
+    Edge,
+    Flow,
+    FlowConfig,
+    FlowRun,
+    FlowRunSchedule,
+    HttpEndpointTrigger,
+    InPort,
+    Node,
+    NodeRun,
+    OutPort,
+    TimerTrigger,
+    Trigger,
+)
+from core.tasks import dispatch_flowrun
 
-from .serializers import (ConstantValueSerializer, EdgeSerializer,
-                          FlowConfigSerializer, FlowCreateSerializer,
-                          FlowRunCreateSerializer, FlowRunScheduleSerializer,
-                          FlowRunSerializer, FlowRunUpdateSerializer,
-                          FlowRunWithNodeRunsSerializer, FlowSerializer,
-                          FlowUpdateSerializer, HttpEndpointTriggerSerializer,
-                          InPortSerializer, NodeCreateSerializer,
-                          NodeRunDataSerializer, NodeRunSerializer,
-                          NodeSerializer, NodeUpdateSerializer,
-                          OutPortSerializer, ShallowFlowSerializer,
-                          TimerTriggerSerializer, TriggerSerializer,
-                          UserSerializer)
+from .serializers import (
+    ConstantValueSerializer,
+    EdgeSerializer,
+    FlowConfigSerializer,
+    FlowCreateSerializer,
+    FlowRunCreateSerializer,
+    FlowRunScheduleSerializer,
+    FlowRunSerializer,
+    FlowRunUpdateSerializer,
+    FlowRunWithNodeRunsSerializer,
+    FlowSerializer,
+    FlowUpdateSerializer,
+    HttpEndpointTriggerSerializer,
+    InPortSerializer,
+    NodeCreateSerializer,
+    NodeRunDataSerializer,
+    NodeRunSerializer,
+    NodeSerializer,
+    NodeUpdateSerializer,
+    OutPortSerializer,
+    ShallowFlowSerializer,
+    TimerTriggerSerializer,
+    TriggerSerializer,
+    UserSerializer,
+)
 
 
 class LambdaCallbackAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
-        key = request.META.get('Authentication')
+        key = request.META.get("Authentication")
         if key != os.environ.get(SET_RUN_DATA_API_KEY, ""):
-            raise exceptions.AuthenticationFailed('No such user')
+            raise exceptions.AuthenticationFailed("No such user")
         return (AnonymousUser(), None)
 
 
@@ -48,7 +72,7 @@ class IsOwner(permissions.BasePermission):
 class IsOwnerOfFlowInList(permissions.BasePermission):
     # TODO: Use this
     def has_permission(self, request, view):
-        return Flow.objects.get(pk=view.kwargs['g_pk']).owner == request.user
+        return Flow.objects.get(pk=view.kwargs["g_pk"]).owner == request.user
 
 
 class IsOwnerOfFlow(permissions.BasePermission):
@@ -71,7 +95,7 @@ class IsOwnerOfPort(permissions.BasePermission):
         return obj.port.node.flow.owner == request.user
 
 
-'''
+"""
 class RunFlowView(APIView):
     permission_classes = (IsOwner,)
 
@@ -82,22 +106,27 @@ class RunFlowView(APIView):
         # config = FlowConfig.objects.get(flow__exact=flowid)
         run_flow_thread(flowid)
         return Response(status=status.HTTP_200_OK, data={'id': db_flowrun.id, 'datetime_start': db_flowrun.datetime_start})
-'''
+"""
 
 # We need to map the parameters, in_ports, out_ports, which are dataclasses, to dictionaries so they can be serialized
 SERIALIZABLE_NODE_FUNCTIONS_DEFINITIONS = NODE_FUNCTIONS_DEFINITIONS
 for (key, func_def) in SERIALIZABLE_NODE_FUNCTIONS_DEFINITIONS.items():
-    func_def['parameters'] = list(map(asdict, func_def['parameters']))
-    func_def['in_ports'] = list(map(asdict, func_def['in_ports']))
-    func_def['out_ports'] = list(map(asdict, func_def['out_ports']))
-    func_def['credentials'] = asdict(
-        func_def['credentials']) if func_def['credentials'] else None
+    func_def["parameters"] = list(map(asdict, func_def["parameters"]))
+    func_def["in_ports"] = list(map(asdict, func_def["in_ports"]))
+    func_def["out_ports"] = list(map(asdict, func_def["out_ports"]))
+    func_def["credentials"] = (
+        asdict(func_def["credentials"]) if func_def["credentials"] else None
+    )
 
 
 class InitView(APIView):
     def get(self, request, format=None):
-        return Response({'node_functions_definitions': SERIALIZABLE_NODE_FUNCTIONS_DEFINITIONS,
-                         'node_functions_categories': [cat.value for cat in NODE_CATEGORIES]})
+        return Response(
+            {
+                "node_functions_definitions": SERIALIZABLE_NODE_FUNCTIONS_DEFINITIONS,
+                "node_functions_categories": [cat.value for cat in NODE_CATEGORIES],
+            }
+        )
 
 
 class UserList(generics.ListAPIView):
@@ -111,53 +140,68 @@ class UserDetail(generics.RetrieveAPIView):
 
 
 class NodeList(generics.ListCreateAPIView):
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOfFlow, )
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsOwnerOfFlow,
+    )
 
     def get_queryset(self):
-        if 'g_pk' in self.kwargs:
-            return Node.objects.filter(flow_id=self.kwargs['g_pk'])
+        if "g_pk" in self.kwargs:
+            return Node.objects.filter(flow_id=self.kwargs["g_pk"])
         return Node.objects.all()
 
     def get_serializer_class(self):
-        if self.request.method == 'POST':
+        if self.request.method == "POST":
             return NodeCreateSerializer
         return NodeSerializer
 
     def perform_create(self, serializer):
-        serializer.save(flow=Flow.objects.get(pk=self.kwargs['g_pk']))
+        serializer.save(flow=Flow.objects.get(pk=self.kwargs["g_pk"]))
 
 
 class NodeDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOfFlow,)
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsOwnerOfFlow,
+    )
     queryset = Node.objects.all()
 
     def get_serializer_class(self):
-        if self.request.method == 'PATCH':
+        if self.request.method == "PATCH":
             return NodeUpdateSerializer
         return NodeSerializer
 
 
 class EdgeList(generics.ListCreateAPIView):
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOfFlow, )
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsOwnerOfFlow,
+    )
     serializer_class = EdgeSerializer
 
     def get_queryset(self):
-        if 'g_pk' in self.kwargs:
-            return Edge.objects.filter(flow_id=self.kwargs['g_pk'])
+        if "g_pk" in self.kwargs:
+            return Edge.objects.filter(flow_id=self.kwargs["g_pk"])
         return Edge.objects.all()
 
     def perform_create(self, serializer):
-        serializer.save(flow=Flow.objects.get(pk=self.kwargs['g_pk']))
+        serializer.save(flow=Flow.objects.get(pk=self.kwargs["g_pk"]))
 
 
 class EdgeDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOfFlow,)
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsOwnerOfFlow,
+    )
     queryset = Edge.objects.all()
     serializer_class = EdgeSerializer
 
 
 class FlowList(generics.ListCreateAPIView):
-    permission_classes = (permissions.IsAuthenticated, IsOwner,)
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsOwner,
+    )
 
     def get_queryset(self):
         return Flow.objects.filter(owner=self.request.user)
@@ -166,35 +210,47 @@ class FlowList(generics.ListCreateAPIView):
         serializer.save(owner=self.request.user)
 
     def get_serializer_class(self):
-        if self.request.method == 'POST':
+        if self.request.method == "POST":
             return FlowCreateSerializer
         return ShallowFlowSerializer
 
 
 class FlowDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Flow.objects.all()
-    permission_classes = (permissions.IsAuthenticated, IsOwner,)
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsOwner,
+    )
 
     def get_serializer_class(self):
-        if self.request.method == 'PATCH':
+        if self.request.method == "PATCH":
             return FlowUpdateSerializer
         return FlowSerializer
 
 
 class FlowConfigDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOfFlow,)
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsOwnerOfFlow,
+    )
     queryset = FlowConfig.objects.all()
     serializer_class = FlowConfigSerializer
 
 
 class ConstantValueList(generics.ListCreateAPIView):
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOfPort,)
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsOwnerOfPort,
+    )
     queryset = ConstantValue.objects.all()
     serializer_class = ConstantValueSerializer
 
 
 class ConstantValueDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOfPort,)
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsOwnerOfPort,
+    )
     serializer_class = ConstantValueSerializer
 
 
@@ -202,13 +258,12 @@ class ConstantValueDetail(generics.RetrieveUpdateDestroyAPIView):
 class HttpEndpointDetail(APIView):
     def post(self, *args, **kwargs):
         req_object = None
-        if 'pk' in self.kwargs:
-            req_object = HttpEndpointTrigger.objects.get(id=self.kwargs['pk'])
+        if "pk" in self.kwargs:
+            req_object = HttpEndpointTrigger.objects.get(id=self.kwargs["pk"])
         else:
             return generics.Http404()
         for sn in req_object.subscribed_nodes.all():
-            run_flow_thread(
-                sn.flow.id, {sn.id: {'data_in': self.request.data.dict()}})
+            run_flow_thread(sn.flow.id, {sn.id: {"data_in": self.request.data.dict()}})
         return Response(status=status.HTTP_200_OK)
 
 
@@ -249,14 +304,14 @@ class FlowRunDetail(generics.RetrieveUpdateAPIView):
     queryset = FlowRun.objects.all()
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
+        if self.request.method == "GET":
             return FlowRunWithNodeRunsSerializer
-        elif self.request.method == 'PATCH':
+        elif self.request.method == "PATCH":
             return FlowRunUpdateSerializer
         return
 
 
-'''
+"""
 class FlowRunCreateList(generics.APIView):
     def post(self, *args, **kwargs):
         return FlowCreateView.as_view()
@@ -266,77 +321,92 @@ class FlowRunCreateList(generics.APIView):
 
 
 class FlowCreateView(genertics.ListCreateAPIView):
-'''
+"""
 
 
 class FlowRunList(generics.ListCreateAPIView):
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOfFlow,)
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsOwnerOfFlow,
+    )
     serializer_class = FlowRunSerializer
     queryset = FlowRun.objects.all()
 
     def get_serializer_class(self):
-        if self.request.method == 'POST':
+        if self.request.method == "POST":
             # This actually runs a flow
             return FlowRunCreateSerializer
         return FlowRunSerializer
 
     def get_queryset(self):
         owned_flows = Flow.objects.filter(owner=self.request.user)
-        owned_flowruns = FlowRun.objects.filter(
-            flow__in=owned_flows).order_by('-datetime_start')
-        if 'g_pk' in self.kwargs:
-            return owned_flowruns.filter(flow_id__exact=self.kwargs['g_pk'])
+        owned_flowruns = FlowRun.objects.filter(flow__in=owned_flows).order_by(
+            "-datetime_start"
+        )
+        if "g_pk" in self.kwargs:
+            return owned_flowruns.filter(flow_id__exact=self.kwargs["g_pk"])
         return owned_flowruns
 
     def perform_create(self, serializer):
         owned_flows = Flow.objects.filter(owner=self.request.user)
-        flow = owned_flows.get(pk=self.kwargs['g_pk'])
+        flow = owned_flows.get(pk=self.kwargs["g_pk"])
         if flow:
+            instance = serializer.save(flow=flow)
             # Dispatch via celery task
-            dispatch_run_flow.delay(instance.id)
+            dispatch_flowrun.delay(instance.id)
             # We don't have to return any instance or so, it will be accessed by the
             # create method via serializer.instance
 
 
 class NodeRunDetail(generics.RetrieveAPIView):
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOfFlowRun,)
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsOwnerOfFlowRun,
+    )
     serializer_class = NodeRunDataSerializer
     queryset = NodeRun.objects.all()
 
 
 class FlowRunScheduleList(generics.ListCreateAPIView):
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOfFlow,)
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsOwnerOfFlow,
+    )
     serializer_class = FlowRunScheduleSerializer
 
     def get_queryset(self):
-        frs = FlowRunSchedule.objects.filter(
-            flow_id__exact=self.kwargs['g_pk'])
+        frs = FlowRunSchedule.objects.filter(flow_id__exact=self.kwargs["g_pk"])
         return frs
 
     def perform_create(self, serializer):
-        serializer.save(flow=Flow.objects.get(pk=self.kwargs['g_pk']))
+        serializer.save(flow=Flow.objects.get(pk=self.kwargs["g_pk"]))
 
 
 class FlowRunScheduleDetail(RetrieveUpdateDestroyAPIView):
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOfFlow,)
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsOwnerOfFlow,
+    )
     serializer_class = FlowRunScheduleSerializer
 
     def get_queryset(self):
-        frs = FlowRunSchedule.objects.filter(
-            flow_id__exact=self.kwargs['g_pk'])
+        frs = FlowRunSchedule.objects.filter(flow_id__exact=self.kwargs["g_pk"])
         return frs
 
-    '''
+    """
     def get_queryset(self):
         owned_flows = Flow.objects.filter(owner=self.request.user)
         if 'g_pk' in self.kwargs and 'r_pk' in self.kwargs and 'n_pk' in self.kwargs:
             return NodeRun.objects.filter(flowrun__exact=FlowRun.objects.filter(flow__in=owned_flows).get(id__exact=self.kwargs['r_pk'])).get(node_id__exact=self.kwargs['n_pk'])
         return 404
-    '''
+    """
 
 
 class FileList(ListCreateAPIView):
-    permission_classes = (permissions.IsAuthenticated, IsOwner,)
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsOwner,
+    )
 
     def get_queryset(self):
         return File.objects.filter(owner=self.request.user)
@@ -345,12 +415,12 @@ class FileList(ListCreateAPIView):
         serializer.save(owner=self.request.user)
 
     def get_serializer_class(self):
-        if self.request.method == 'POST':
+        if self.request.method == "POST":
             return FileCreateSerializer
         return FileSerializer
 
 
-'''
+"""
 class InPortDetailView(RetrieveAPIView):
     queryset = InPort.objects.all()
     serializer = InPortSerializer
@@ -359,4 +429,4 @@ class InPortDetailView(RetrieveAPIView):
 class OutPortDetailView(RetrieveAPIView):
     queryset = OutPort.objects.all()
     serializer = OutPortSerializer
-'''
+"""

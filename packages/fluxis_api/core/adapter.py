@@ -10,7 +10,10 @@ from rest_framework.renderers import JSONRenderer
 import core.data_store as data_store
 import core.flow_runners.thread_runner as thread_runner
 import core.models as db_models
-from fluxis_engine.core.node_functions.node_functions import NODE_CATEGORIES, NODE_FUNCTIONS
+from fluxis_engine.core.node_functions.node_functions import (
+    NODE_CATEGORIES,
+    NODE_FUNCTIONS,
+)
 from fluxis_engine.core.observer.observer import Observer
 from fluxis_engine.core.parameter_config import ParameterType
 from fluxis_engine.core.port_config import PortType
