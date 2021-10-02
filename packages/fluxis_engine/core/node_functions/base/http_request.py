@@ -5,6 +5,7 @@ from fluxis_engine.core.port_config import PortConfig
 
 
 class HTTPRequest(NodeFunction):
+    name = "Http Request"
     in_ports_conf = [
         PortConfig(
             key="url",

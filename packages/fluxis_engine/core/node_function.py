@@ -1,10 +1,25 @@
 import abc
+from enum import Enum
 from inspect import signature
 from typing import Any, Callable
 
 from fluxis_engine.core.credentials_config import CredentialsConfig
 from fluxis_engine.core.parameter_config import ParameterConfigs
-from fluxis_engine.core.port_config import PortConfigs, PortConfig
+from fluxis_engine.core.port_config import PortConfig, PortConfigs
+
+
+class NODE_CATEGORIES(Enum):
+    TRIGGER = "Trigger"
+    CONTROL_FLOW = "Control Flow"
+    TABLE = "Table"
+    OBJECT = "Object"
+    ARRAY = "Array"
+    MATH = "Math"
+    LOGIC = "Logic"
+    TEXT = "Text"
+    INTELLIGENCE = "Intelligence"
+    DATA_IN = "Data sources"
+    DATA_OUT = "Data destinations"
 
 
 class NodeFunction(abc.ABC):
@@ -12,7 +27,10 @@ class NodeFunction(abc.ABC):
     A NodeFunction defines the function and the parameters it needs
     """
 
+    # TODO: Add port names
     name: str = ""
+    key: str
+    category: str
     description: str = ""  # Should be a one sentence description
     explanation: str = ""  # Longer explanation on how to use
 

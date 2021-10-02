@@ -5,6 +5,7 @@ from fluxis_engine.core.port_config import PortConfig, PortType
 
 
 class Predict(NodeFunction):
+    name = "Predict with model"
     in_ports_conf = [
         PortConfig(
             key="features",

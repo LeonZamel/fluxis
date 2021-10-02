@@ -7,6 +7,7 @@ from .utils import safe_eval_on_dataframe
 
 
 class Filter(NodeFunction):
+    name = "Filter"
     in_ports_conf = [
         PortConfig(
             key="table_in",

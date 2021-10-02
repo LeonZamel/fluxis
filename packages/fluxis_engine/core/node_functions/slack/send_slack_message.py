@@ -11,6 +11,7 @@ API_ENDPOINT = "https://slack.com/api/chat.postMessage"
 
 
 class SendSlackMessage(NodeFunction):
+    name = "Send Slack message"
     in_ports_conf = [
         PortConfig(
             key="channel_id",

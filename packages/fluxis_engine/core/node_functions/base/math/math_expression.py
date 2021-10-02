@@ -8,6 +8,7 @@ from fluxis_engine.core.node_functions.base.utils import safe_eval_on_dataframe
 
 
 class MathExpression(NodeFunction):
+    name = "Math expression"
     in_ports_conf = [
         PortConfig(
             key="table_in",

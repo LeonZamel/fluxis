@@ -11,7 +11,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from core.adapter import NODE_CATEGORIES, NODE_FUNCTIONS_DEFINITIONS
+from core.adapter import NODE_FUNCTIONS_DEFINITIONS
 from core.models import (
     ConstantValue,
     Edge,
@@ -109,14 +109,22 @@ class RunFlowView(APIView):
 """
 
 # We need to map the parameters, in_ports, out_ports, which are dataclasses, to dictionaries so they can be serialized
-SERIALIZABLE_NODE_FUNCTIONS_DEFINITIONS = NODE_FUNCTIONS_DEFINITIONS
-for (key, func_def) in SERIALIZABLE_NODE_FUNCTIONS_DEFINITIONS.items():
-    func_def["parameters"] = list(map(asdict, func_def["parameters"]))
-    func_def["in_ports"] = list(map(asdict, func_def["in_ports"]))
-    func_def["out_ports"] = list(map(asdict, func_def["out_ports"]))
-    func_def["credentials"] = (
-        asdict(func_def["credentials"]) if func_def["credentials"] else None
+SERIALIZABLE_NODE_FUNCTIONS_DEFINITIONS = {}
+for func_def in NODE_FUNCTIONS_DEFINITIONS.values():
+    serialized_func_def = {}
+    serialized_func_def["key"] = func_def.name
+    serialized_func_def["name"] = func_def.name
+    serialized_func_def["parameters"] = list(map(asdict, func_def.parameters))
+    serialized_func_def["in_ports"] = list(
+        map(asdict, filter(lambda port: not port.internal, func_def.in_ports_conf))
     )
+    serialized_func_def["out_ports"] = list(
+        map(asdict, filter(lambda port: not port.internal, func_def.out_ports_conf))
+    )
+    serialized_func_def["credentials"] = (
+        asdict(func_def.credentials) if func_def.credentials else None
+    )
+    SERIALIZABLE_NODE_FUNCTIONS_DEFINITIONS[func_def.name] = serialized_func_def
 
 
 class InitView(APIView):
@@ -124,7 +132,6 @@ class InitView(APIView):
         return Response(
             {
                 "node_functions_definitions": SERIALIZABLE_NODE_FUNCTIONS_DEFINITIONS,
-                "node_functions_categories": [cat.value for cat in NODE_CATEGORIES],
             }
         )
 

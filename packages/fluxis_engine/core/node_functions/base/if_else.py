@@ -3,6 +3,7 @@ from fluxis_engine.core.port_config import PortConfig
 
 
 class IfElse(NodeFunction):
+    name = "If Else"
     in_ports_conf = [
         PortConfig(
             key="condition",

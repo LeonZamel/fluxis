@@ -5,6 +5,7 @@ from fluxis_engine.core.port_config import PortConfig
 
 
 class LogicalNot(NodeFunction):
+    name = "Logical Not"
     in_ports_conf = [
         PortConfig(
             key="in",

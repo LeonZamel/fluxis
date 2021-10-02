@@ -5,6 +5,7 @@ from fluxis_engine.core.port_config import PortConfig
 
 
 class IsNaN(NodeFunction):
+    name = "Is NaN"
     in_ports_conf = [
         PortConfig(
             key="values",

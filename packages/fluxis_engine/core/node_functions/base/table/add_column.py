@@ -3,6 +3,7 @@ from fluxis_engine.core.port_config import PortConfig, PortType
 
 
 class AddColumn(NodeFunction):
+    name = "Add column"
     in_ports_conf = [
         PortConfig(
             key="table_in",

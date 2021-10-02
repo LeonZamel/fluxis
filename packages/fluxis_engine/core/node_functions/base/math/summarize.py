@@ -8,6 +8,7 @@ from fluxis_engine.core.parameter_config import ParameterConfig, ParameterType
 
 
 class Summarize(NodeFunction):
+    name = "Summarize"
     in_ports_conf = [
         PortConfig(
             key="table_in",

@@ -6,6 +6,7 @@ from fluxis_engine.core.port_config import PortConfig, PortType
 
 
 class SupportVectorMachine(NodeFunction):
+    name = "Support Vector Machine"
     in_ports_conf = [
         PortConfig(
             key="features",

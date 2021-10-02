@@ -6,6 +6,7 @@ from fluxis_engine.core.port_config import PortConfig
 
 
 class Average(NodeFunction):
+    name = "Average"
     in_ports_conf = [
         PortConfig(
             key="values",

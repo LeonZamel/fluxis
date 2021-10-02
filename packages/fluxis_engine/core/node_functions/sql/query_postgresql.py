@@ -8,6 +8,8 @@ import pandas as pd
 
 
 class QueryPostgresql(NodeFunction):
+    name = "Query postgresql database"
+
     in_ports_conf = [
         PortConfig(
             key="query",

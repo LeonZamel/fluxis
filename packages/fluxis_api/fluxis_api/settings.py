@@ -261,6 +261,7 @@ CACHES = {
 # FLUXIS
 FLUXIS_STORAGE_DIRECTORY = os.environ.get("FLUXIS_STORAGE_DIRECTORY", "storage")
 USE_LAMBDA = False
+FLUXIS_NODEFUNCTION_PATHS = []
 
 # Used for run logs, uploaded files etc.
 USE_S3_COMPAT_STORAGE = os.environ.get("USE_S3_COMPAT_STORAGE", False)

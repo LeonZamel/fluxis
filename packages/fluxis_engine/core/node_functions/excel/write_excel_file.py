@@ -5,6 +5,7 @@ from fluxis_engine.core.port_config import PortConfig
 
 
 class WriteExcel(NodeFunction):
+    name = "Write Excel file"
     in_ports_conf = [
         PortConfig(
             key="table",

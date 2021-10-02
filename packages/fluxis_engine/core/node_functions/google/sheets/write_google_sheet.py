@@ -16,6 +16,7 @@ from fluxis_engine.core.port_config import PortConfig, PortType
 
 
 class WriteGoogleSheet(NodeFunction):
+    name = "Write Google sheet"
     description = "Writes data to a new Google sheet"
     explanation = "Use this connector when you want to create a new Google Sheet with data from your flow."
 

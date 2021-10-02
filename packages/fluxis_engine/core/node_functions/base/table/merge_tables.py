@@ -5,6 +5,7 @@ from fluxis_engine.core.port_config import PortConfig, PortType
 
 
 class MergeTables(NodeFunction):
+    name = "Merge tables"
     in_ports_conf = [
         PortConfig(
             key="table_1",

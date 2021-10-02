@@ -1,40 +1,27 @@
 import io
 import os
 import threading
+from collections import Counter
 
 import requests
+from authentication.services.oauth2.oauth2_providers import OAUTH2_PROVIDERS
+from authentication.utils import token_expired
 from django.conf import settings
-from rest_framework.parsers import JSONParser
-from rest_framework.renderers import JSONRenderer
-
-import core.data_store as data_store
-import core.flow_runners.thread_runner as thread_runner
-import core.models as db_models
 from fluxis_engine.core.node_functions.node_functions import (
-    NODE_CATEGORIES,
     NODE_FUNCTIONS,
 )
 from fluxis_engine.core.observer.observer import Observer
 from fluxis_engine.core.parameter_config import ParameterType
 from fluxis_engine.core.port_config import PortType
 from fluxis_engine.core.run_end_reasons import FlowRunEndReason, NodeRunEndReason
-from authentication.services.oauth2.oauth2_providers import OAUTH2_PROVIDERS
-from authentication.utils import token_expired
+from rest_framework.parsers import JSONParser
+from rest_framework.renderers import JSONRenderer
 
+import core.data_store as data_store
+import core.flow_runners.thread_runner as thread_runner
+import core.models as db_models
 
 from .flow_runners.thread_runner import thread_runner
-
-# TODO: Add port names
-
-# "timer": (TimerFunction, "Timer"),
-# "iterate": (IterateFunction, "Iterate over array"),
-# "combine_to_array_while": (CombineToArrayWhileFunction, "Combine values to array"),
-# "internal_data_http_endpoint": (InternalDataHttpEndpointFunction, "Data from http endpoint"),
-# "print": (PrintFunction, "Print value"),
-
-
-def get_function(name):
-    return NODE_FUNCTIONS[name][0]
 
 
 # Must be a tuple of Actual value, human readable value
@@ -45,27 +32,24 @@ PARAMETER_TYPE_CHOICES = [
 PORT_TYPE_CHOICES = [(port_type.value, port_type.value) for port_type in PortType]
 
 
-NODE_FUNCTIONS_CHOICES = [(f[0], f[1][1]) for f in NODE_FUNCTIONS.items()]
-
-NODE_FUNCTIONS_DEFINITIONS = {
-    f[0]: {
-        "name": f[1][1],
-        "is_trigger_node": f[1][0].is_trigger_node,
-        "in_ports": list(filter(lambda port: not port.internal, f[1][0].in_ports_conf)),
-        "out_ports": list(
-            filter(lambda port: not port.internal, f[1][0].out_ports_conf)
-        ),
-        "parameters": f[1][0].parameters,
-        "credentials": f[1][0].credentials,
-        "category": f[1][2].value,
-    }
-    for f in NODE_FUNCTIONS.items()
-}
+ALL_IMPORTED_NODE_FUNCTIONS = NODE_FUNCTIONS
 
 
-CATEGORICAL_NODE_FUNCTIONS_DEFINITIONS = {cat.value: {} for cat in NODE_CATEGORIES}
-for func_key, func in NODE_FUNCTIONS_DEFINITIONS.items():
-    CATEGORICAL_NODE_FUNCTIONS_DEFINITIONS[func["category"]][func_key] = func
+NODE_FUNCTIONS_DEFINITIONS = {f.name: f for f in ALL_IMPORTED_NODE_FUNCTIONS}
+
+
+all_names = list(map(lambda f: f.name, NODE_FUNCTIONS_DEFINITIONS.values()))
+(most_key, most_count), *rest = Counter(all_names).most_common()
+assert most_count <= 1, f"Node function name '{most_key}' exists {most_count} times!"
+
+
+NODE_FUNCTIONS_CHOICES = [
+    (nf.name, nf.name) for nf in NODE_FUNCTIONS_DEFINITIONS.values()
+]
+
+
+def get_node_function(key):
+    return NODE_FUNCTIONS_DEFINITIONS[key]
 
 
 def refresh_flow_oauth2credentials(flow) -> None:
@@ -113,8 +97,8 @@ def run_flow(db_flowrun_id):
 
     # Serialize to python dicts with serializable types i.e. str, int, bool
     from authentication.serializers import (
-        FullOAuth2CredentialsSerializer,
         DatabaseCredentialsSerializer,
+        FullOAuth2CredentialsSerializer,
     )
 
     serialized_credentials = {}

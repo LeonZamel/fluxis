@@ -6,6 +6,7 @@ from fluxis_engine.core.port_config import PortConfig
 
 
 class Sum(NodeFunction):
+    name = "Sum"
     in_ports_conf = [
         PortConfig(
             key="values",

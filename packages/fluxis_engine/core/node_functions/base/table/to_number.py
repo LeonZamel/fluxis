@@ -8,6 +8,7 @@ from fluxis_engine.core.parameter_config import ParameterConfig, ParameterType
 
 
 class ToNumber(NodeFunction):
+    name = "To number"
     in_ports_conf = [
         PortConfig(
             key="table_in",

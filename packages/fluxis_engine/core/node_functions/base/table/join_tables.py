@@ -5,6 +5,7 @@ from fluxis_engine.core.port_config import PortConfig, PortType
 
 
 class JoinTables(NodeFunction):
+    name = "Join tables"
     in_ports_conf = [
         PortConfig(
             key="table_left",

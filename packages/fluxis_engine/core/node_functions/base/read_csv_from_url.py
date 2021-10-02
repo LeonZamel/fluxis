@@ -5,6 +5,7 @@ from fluxis_engine.core.port_config import PortConfig
 
 
 class ReadCSVFromURL(NodeFunction):
+    name = "Read CSV from URL"
     in_ports_conf = [
         PortConfig(
             key="url",

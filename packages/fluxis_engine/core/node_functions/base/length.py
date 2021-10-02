@@ -3,6 +3,7 @@ from fluxis_engine.core.port_config import PortConfig
 
 
 class Length(NodeFunction):
+    name = "Length"
     in_ports_conf = [
         PortConfig(
             key="array",

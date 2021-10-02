@@ -5,6 +5,7 @@ from fluxis_engine.core.port_config import PortConfig
 
 
 class RenameColumns(NodeFunction):
+    name = "Rename columns"
     in_ports_conf = [
         PortConfig(
             key="table_in",

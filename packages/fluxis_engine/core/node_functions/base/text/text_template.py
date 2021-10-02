@@ -3,6 +3,7 @@ from fluxis_engine.core.port_config import PortConfig
 
 
 class TextTemplate(NodeFunction):
+    name = "Text template"
     in_ports_conf = [
         PortConfig(
             key="text_in",

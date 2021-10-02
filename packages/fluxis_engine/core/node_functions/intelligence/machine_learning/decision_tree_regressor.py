@@ -5,6 +5,7 @@ from fluxis_engine.core.port_config import PortConfig, PortType
 
 
 class DecisionTreeRegressor(NodeFunction):
+    name = "Decision Tree Regressor"
     in_ports_conf = [
         PortConfig(
             key="features",

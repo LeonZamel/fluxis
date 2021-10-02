@@ -13,6 +13,7 @@ from fluxis_engine.core.port_config import PortConfig, PortType
 
 
 class ReadGoogleSheet(NodeFunction):
+    name = "Read Google sheet"
     description = "Reads a Google sheet"
     explanation = "Use this connector when you want to import existing data from one of your Google sheets. \
         To use this, first connect your accounts by creating credentials and logging in to you Google account. \

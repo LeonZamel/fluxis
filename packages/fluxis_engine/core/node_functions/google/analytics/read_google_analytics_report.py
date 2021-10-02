@@ -13,6 +13,7 @@ from fluxis_engine.core.port_config import PortConfig
 
 
 class ReadGoogleAnalyticsReport(NodeFunction):
+    name = "Read Google Analytics Report"
     description = "Import data from google analytics"
     explanation = "Use this connector when you want to import\
          report data from your google analytics account to automatically \

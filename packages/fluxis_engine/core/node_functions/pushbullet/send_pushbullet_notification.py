@@ -6,6 +6,7 @@ from fluxis_engine.core.port_config import PortConfig
 
 
 class SendPushbulletNotification(NodeFunction):
+    name = "Send Pushbullet notification"
     in_ports_conf = [
         PortConfig(
             key="message_title",

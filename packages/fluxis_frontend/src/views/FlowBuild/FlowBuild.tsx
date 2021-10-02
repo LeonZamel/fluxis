@@ -100,7 +100,7 @@ class FlowBuild extends React.Component<IFlowBuildProps, IFlowBuildState> {
         selected: {},
         hovered: {},
       },
-      nodeFunctions: {}, 
+      nodeFunctions: {},
       nodeFunctionsCategoriesOpen: {},
       flowId: this.props.match.params.flowId,
 
@@ -134,18 +134,18 @@ class FlowBuild extends React.Component<IFlowBuildProps, IFlowBuildState> {
 
   public componentDidMount() {
     getInit().then(resp => {
-      let node_defs: INodeDefs = {}
-      let response_defs: IBENodeDefs = resp.data.node_functions_definitions
-      for (let node_def_key in response_defs) {
-        node_defs[node_def_key] = convertNodeDefB2F(node_def_key, response_defs[node_def_key])
+      let nodeDefs: INodeDefs = {}
+      let responseDefs: IBENodeDefs = resp.data.node_functions_definitions
+      for (let node_def_key in responseDefs) {
+        nodeDefs[node_def_key] = convertNodeDefB2F(node_def_key, responseDefs[node_def_key])
       }
       let nodeFunctionsCategories: { [key: string]: boolean } = {};
-      for (let node_cat_key of resp.data.node_functions_categories) {
-        nodeFunctionsCategories[node_cat_key] = false
+      for (let key in nodeDefs) {
+        nodeFunctionsCategories[nodeDefs[key].category] = false
       }
       this.setState(
         {
-          nodeFunctions: node_defs,
+          nodeFunctions: nodeDefs,
           nodeFunctionsCategoriesOpen: nodeFunctionsCategories
         },
         this.loadFlow
@@ -1000,22 +1000,22 @@ class FlowBuild extends React.Component<IFlowBuildProps, IFlowBuildState> {
                     <Box>
                       On:
                       {moment.weekdays().map((val, i) => (
-                      <FormControlLabel
-                        key={i}
-                        value={i}
-                        control={
-                          <Checkbox
-                            checked={this.state.scheduleWeekdays.includes(i)}
-                            onChange={(event: object, checked: boolean) => {
-                              this.setState(prevState => ({
-                                scheduleWeekdays: [...prevState.scheduleWeekdays, i].filter((e) => e !== i || checked)
-                              }))
-                            }}
-                          />
-                        }
-                        label={val.slice(0, 3)}
-                        labelPlacement="top"
-                      />))
+                        <FormControlLabel
+                          key={i}
+                          value={i}
+                          control={
+                            <Checkbox
+                              checked={this.state.scheduleWeekdays.includes(i)}
+                              onChange={(event: object, checked: boolean) => {
+                                this.setState(prevState => ({
+                                  scheduleWeekdays: [...prevState.scheduleWeekdays, i].filter((e) => e !== i || checked)
+                                }))
+                              }}
+                            />
+                          }
+                          label={val.slice(0, 3)}
+                          labelPlacement="top"
+                        />))
                       }
                     </Box>
                     :
@@ -1023,16 +1023,16 @@ class FlowBuild extends React.Component<IFlowBuildProps, IFlowBuildState> {
                       Day of Month:
                     </Box>
                   }
-              At:
-              <TimePicker
+                  At:
+                  <TimePicker
                     clearable
                     ampm={false}
                     label="24 hours"
                     value={this.state.scheduleDateTime}
                     onChange={(val: any) => this.setState({ scheduleDateTime: val })}
                   />
-                Timezone:
-                      <Select
+                  Timezone:
+                  <Select
                     labelId='select-timezone'
                     value={this.state.scheduleTimezone}
                     onChange={(e: any) => { this.setState({ scheduleTimezone: e.target.value }) }}
@@ -1052,10 +1052,10 @@ class FlowBuild extends React.Component<IFlowBuildProps, IFlowBuildState> {
               <DialogActions>
                 <Button onClick={() => this.setState({ createScheduleOpen: false })} color="default">
                   Cancel
-            </Button>
+                </Button>
                 <Button onClick={() => this.handleCreateSchedule()} color="primary">
                   Done
-            </Button>
+                </Button>
               </DialogActions>
             </Box>
           }

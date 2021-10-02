@@ -13,8 +13,7 @@ from rest_framework.fields import CurrentUserDefault, DateTimeField, TimeField
 from django_celery_beat.models import CrontabSchedule, PeriodicTask
 
 from core.adapter import (
-    NODE_FUNCTIONS_DEFINITIONS,
-    get_function,
+    get_node_function,
     refresh_flow_oauth2credentials,
 )
 from core.data_store import read_output_for_noderun
@@ -278,24 +277,24 @@ class NodeCreateSerializer(serializers.ModelSerializer):
 
     def create_parameters(self, node, function):
         # We create the parameters with an empty value. The value can then be PATCHed by the client later
-        parameters = NODE_FUNCTIONS_DEFINITIONS[function]["parameters"]
+        parameters = get_node_function(function).parameters
         for parameter in parameters:
             Parameter.objects.create(
                 value="",
                 node=node,
-                key=parameter["key"],
-                data_type=parameter["data_type"],
+                key=parameter.key,
+                data_type=parameter.data_type,
             )
 
     # TODO: Add Port type
     def create_ports(self, node, function):
-        in_ports = NODE_FUNCTIONS_DEFINITIONS[function]["in_ports"]
+        in_ports = get_node_function(function).in_ports_conf
         for ip in in_ports:
-            InPort.objects.create(node=node, key=ip["key"])
+            InPort.objects.create(node=node, key=ip.key)
 
-        out_ports = NODE_FUNCTIONS_DEFINITIONS[function]["out_ports"]
+        out_ports = get_node_function(function).out_ports_conf
         for op in out_ports:
-            OutPort.objects.create(node=node, key=op["key"])
+            OutPort.objects.create(node=node, key=op.key)
 
 
 """
@@ -328,7 +327,7 @@ class NodeUpdateSerializer(serializers.ModelSerializer):
         suggestions = {}
         for port in in_ports_of_node:
             suggestor = suggestions[port.key] = getattr(
-                get_function(obj.function), f"suggest_{port.key}", None
+                get_node_function(obj.function), f"suggest_{port.key}", None
             )
             if suggestor:
                 suggestions[port.key] = suggestor(obj)
