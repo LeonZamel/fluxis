@@ -152,7 +152,7 @@ class FlowBuild extends React.Component<IFlowBuildProps, IFlowBuildState> {
       )
     })
     getFlowRuns(this.state.flowId).then(resp => {
-      this.setState({ runs: resp })
+      this.setState({ runs: resp.data })
     })
     getAllCredentials().then(resp => {
       this.setState({ credentials: resp.data })
@@ -228,14 +228,14 @@ class FlowBuild extends React.Component<IFlowBuildProps, IFlowBuildState> {
   private startPollFlowRun() {
     // Repeatedly poll the server to get the result of the current run
     if (this.state.currentlyRunning) {
-      getFlowRun(this.state.flowId, this.state.currentlyRunningId).then(res => {
+      getFlowRun(this.state.flowId, this.state.currentlyRunningId).then(resp => {
         this.downloadFlowRunData(this.state.currentlyRunningId, this.state.flowId)
-        if (res.datetime_end === null) {
+        if (resp.data.datetime_end === null) {
           setTimeout(this.startPollFlowRun.bind(this), FLOW_RUN_POLLING_DELAY_MS)
         } else {
           this.setState(prevState => ({
             currentlyRunning: false,
-            runs: [res, ...(prevState.runs.filter(run => run.id !== prevState.currentlyRunningId))],
+            runs: [resp.data, ...(prevState.runs.filter(run => run.id !== prevState.currentlyRunningId))],
             currentlyRunningId: ""
           })
           )
@@ -321,7 +321,7 @@ class FlowBuild extends React.Component<IFlowBuildProps, IFlowBuildState> {
 
   private downloadFlowRunData(flowRunId: string, flowId: string) {
     getFlowRun(flowId, flowRunId).then((resp) => {
-      this.setState({ currentRun: resp, currentNodeRunsOpen: Object.fromEntries(resp.node_runs.map((val) => [val, false])) },
+      this.setState({ currentRun: resp.data, currentNodeRunsOpen: Object.fromEntries(resp.data.node_runs.map((val) => [val, false])) },
         () => {
           this.state.currentRun!.node_runs.forEach((nodeRun) => {
             if (nodeRun.datetime_end != null) {

@@ -31,7 +31,7 @@ export default function RunSummary() {
   useEffect(() => {
     getAllFlowRuns()
       .then(resp => {
-        setRuns(resp.slice(0, 5))
+        setRuns(resp.data.slice(0, 5))
       })
       .finally(() => {
         setLoading(false)

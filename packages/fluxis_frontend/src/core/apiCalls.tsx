@@ -5,93 +5,53 @@ import { IBENode, IBELink, IBEPort, IBEFlowRun, IBEShallowFlowRun, IParameters, 
 
 const bigDataConfig = { timeout: 30000 } // 30 Seconds
 
-export const sendChangeDeployFlow = (flowId: string, deployed: boolean): AxiosPromise<IBEFlow> => {
+export const sendChangeDeployFlow = (flowId: string, deployed: boolean) => {
   return axios.patch(`/api/v1/flows/${flowId}/`, { "deployed": deployed })
 }
 
-export const sendCreateNode = async (node: IBENode, flowId: string): Promise<string> => {
-  return axios.post(`/api/v1/flows/${flowId}/nodes/`, node).then((resp) => {
-    return resp.data.id
-  }).catch((resp) => {
-    console.warn("Couldn't create node")
-    return null
-  })
+export const sendCreateNode = (node: IBENode, flowId: string) => {
+  return axios.post(`/api/v1/flows/${flowId}/nodes/`, node)
 }
 
-export const sendMoveNode = async (nodeId: string, x: number, y: number, flowId: string): Promise<string> => {
-  return axios.patch(`/api/v1/flows/${flowId}/nodes/${nodeId}/`, { x, y }).then((resp) => {
-    return resp.data.id
-  }).catch((resp) => {
-    console.warn("Couldn't move node")
-    return null
-  })
+export const sendMoveNode = (nodeId: string, x: number, y: number, flowId: string) => {
+  return axios.patch(`/api/v1/flows/${flowId}/nodes/${nodeId}/`, { x, y })
 }
 
-export const sendCreateLink = async (link: IBELink, flowId: string): Promise<string | null> => {
-  return axios.post(`/api/v1/flows/${flowId}/edges/`, link).then((resp) => {
-    return resp.data.id
-  }).catch((resp) => {
-    console.warn("Couldn't create link")
-    return null
-  })
+export const sendCreateLink = (link: IBELink, flowId: string): AxiosPromise<IBELink> => {
+  return axios.post(`/api/v1/flows/${flowId}/edges/`, link)
 }
 
-export const sendDeleteLink = async (linkId: string, flowId: string): Promise<string> => {
-  return axios.delete(`/api/v1/flows/${flowId}/edges/${linkId}/`).then((resp) => {
-    return resp.data.id
-  }).catch((resp) => {
-    console.warn("Couldn't delete link")
-    return null
-  })
+export const sendDeleteLink = (linkId: string, flowId: string) => {
+  return axios.delete(`/api/v1/flows/${flowId}/edges/${linkId}/`)
 }
 
-export const sendDeleteNode = async (nodeId: string, flowId: string): Promise<string> => {
-  return axios.delete(`/api/v1/flows/${flowId}/nodes/${nodeId}/`).then((resp) => {
-    return resp.data.id
-  }).catch((resp) => {
-    console.warn("Couldn't delete node")
-    return null
-  })
+export const sendDeleteNode = (nodeId: string, flowId: string) => {
+  return axios.delete(`/api/v1/flows/${flowId}/nodes/${nodeId}/`)
 }
 
-export const sendChangeTriggerPort = async (nodeId: string, enabled: boolean, flowId: string): Promise<IBENode> => {
+export const sendChangeTriggerPort = (nodeId: string, enabled: boolean, flowId: string) => {
   let data: any = null
   if (enabled) {
     data = {
       "key": "trigger"
     }
   }
-  return axios.patch(`/api/v1/flows/${flowId}/nodes/${nodeId}/`, { "trigger_port": data }).then((resp) => {
-    return resp.data
-  }).catch((resp) => {
-    console.warn("Couldn't change trigger port")
-    return null
-  })
+  return axios.patch(`/api/v1/flows/${flowId}/nodes/${nodeId}/`, { "trigger_port": data })
 }
 
-export const sendChangeParameterValue = async (nodeId: string, parameters: IParameters, flowId: string): Promise<IBENode> => {
-  return axios.patch(`/api/v1/flows/${flowId}/nodes/${nodeId}/`, { parameters: Object.entries(parameters).map(([parameterKey, parameter]) => parameter) }).then((resp) => {
-    return resp.data
-  }).catch((resp) => {
-    console.warn("Couldn't change parameter")
-    return null
-  })
+export const sendChangeParameterValue = (nodeId: string, parameters: IParameters, flowId: string): AxiosPromise<IBENode> => {
+  return axios.patch(`/api/v1/flows/${flowId}/nodes/${nodeId}/`, { parameters: Object.entries(parameters).map(([parameterKey, parameter]) => parameter) })
 }
 
-export const sendChangeConstantInputValue = async (nodeId: string, in_ports: IBEPort[], flowId: string): Promise<IBENode> => {
-  return axios.patch(`/api/v1/flows/${flowId}/nodes/${nodeId}/`, { in_ports: in_ports }).then((resp) => {
-    return resp.data
-  }).catch((resp) => {
-    console.warn("Couldn't change constant input")
-    return null
-  })
+export const sendChangeConstantInputValue = (nodeId: string, in_ports: IBEPort[], flowId: string): AxiosPromise<IBENode> => {
+  return axios.patch(`/api/v1/flows/${flowId}/nodes/${nodeId}/`, { in_ports: in_ports })
 }
 
-export const sendRunFlow = async (flowId: string) => {
+export const sendRunFlow = (flowId: string): AxiosPromise<IBEFlowRun> => {
   return axios.post(`/api/v1/flows/${flowId}/runs/`)
 }
 
-export const getInit = () => {
+export const getInit = (): AxiosPromise<any> => {
   return axios.get(`/api/v1/init/`)
 }
 
@@ -104,46 +64,27 @@ export const getAllTriggers = () => {
 }
 
 // TODO: should error be cancelled here?
-export const getAllFlowRuns = (): Promise<IBEShallowFlowRun[]> => {
-  return axios.get(`/api/v1/runs/`).then(resp => {
-    return resp.data
-  }).catch((resp) => {
-    console.warn("Couldn't get runs")
-    return []
-  })
+export const getAllFlowRuns = (): AxiosPromise<IBEShallowFlowRun[]> => {
+  return axios.get(`/api/v1/runs/`)
 }
 
-export const getFlowRuns = (flowId: string): Promise<IBEShallowFlowRun[]> => {
-  return axios.get(`/api/v1/flows/${flowId}/runs/`).then(resp => {
-    return resp.data
-  }).catch((resp) => {
-    console.warn("Couldn't get runs")
-    return []
-  })
+export const getFlowRuns = (flowId: string): AxiosPromise<IBEShallowFlowRun[]> => {
+  return axios.get(`/api/v1/flows/${flowId}/runs/`)
 }
 
-export const getFlowRun = (flowId: string, flowRunId: string): Promise<IBEFlowRun> => {
-  return axios.get(`/api/v1/flows/${flowId}/runs/${flowRunId}/`).then(resp => {
-    return resp.data
-  }).catch((resp) => {
-    console.warn("Couldn't get run")
-    return null
-  })
+export const getFlowRun = (flowId: string, flowRunId: string): AxiosPromise<IBEFlowRun> => {
+  return axios.get(`/api/v1/flows/${flowId}/runs/${flowRunId}/`)
 }
 
-export const getFlowRunNodeData = (flowId: string, runId: string, nodeRunId: string): Promise<any> => {
-  return axios.get(`/api/v1/flows/${flowId}/runs/${runId}/${nodeRunId}/`, bigDataConfig).then(resp => {
-    return resp.data
-  }).catch((resp) => {
-    return { "non_serializable": null }
-  })
+export const getFlowRunNodeData = (flowId: string, runId: string, nodeRunId: string): AxiosPromise<any> => {
+  return axios.get(`/api/v1/flows/${flowId}/runs/${runId}/${nodeRunId}/`, bigDataConfig)
 }
 
 /*
 export const getNodesForFlow = (flowId: string) => {
   return axios.get(`/api/v1/flows/${flowId}/nodes/`)
 }
-
+ 
 export const getEdgesForFlow = (flowId: string) => {
   return axios.get(`/api/v1/flows/${flowId}/edges/`)
 }
@@ -157,7 +98,7 @@ export const getFlowConfig = (flowId: string) => {
   return axios.get(`/api/v1/flows/${flowId}/config/`)
 }
 
-export const sendLogin = (username: string, password: string) => {
+export const sendLogin = (username: string, password: string): AxiosPromise<any> => {
   return axios.post('/api/v1/rest-auth/login/', {
     username, password
   })
@@ -171,7 +112,7 @@ export const sendLogout = () => {
   return axios.post('/api/v1/rest-auth/logout/')
 }
 
-export const sendSignup = (username: string, email: string, password1: string, password2: string) => {
+export const sendSignup = (username: string, email: string, password1: string, password2: string): AxiosPromise<any> => {
   return axios.post('/api/v1/rest-auth/registration/', {
     username, email, password1, password2
   })
@@ -181,7 +122,7 @@ export const sendSignup = (username: string, email: string, password1: string, p
 export const sendUpdateFlow = (flowId: string, flow: IBEFlow): AxiosPromise<IBEFlow> => {
   return axios.patch(`/api/v1/flows/${flowId}/`, flow)
 }
-*/
+    */
 
 export const sendCreateFlow = (name: string) => {
   return axios.post('/api/v1/flows/', { name })
@@ -203,20 +144,20 @@ export const sendDeleteFile = (flowId: string) => {
   return axios.delete(`/api/v1/flows/${flowId}/`)
 }
 
-export const sendCreateHttpEndpointTrigger = (name: string, path: string) => {
+export const sendCreateHttpEndpointTrigger = (name: string, path: string): AxiosPromise<any> => {
   return axios.post('/api/v1/triggers/http_endpoint/', { name, path })
 }
 
-export const sendCreateTimerTrigger = (name: string, interval: number, repetitions: number) => {
+export const sendCreateTimerTrigger = (name: string, interval: number, repetitions: number): AxiosPromise<any> => {
   return axios.post('/api/v1/triggers/timer/', { name, interval, repetitions })
 }
 
 
-export const sendCreateCredentials = (service: string, username: string, password: string, host: string, port: number, database: string) => {
+export const sendCreateCredentials = (service: string, username: string, password: string, host: string, port: number, database: string): AxiosPromise<Credentials> => {
   return axios.post('/api/v1/auth/database/', { service, username, password, host, port, database })
 }
 
-export const getOAuth2URL = (service_key: string) => {
+export const getOAuth2URL = (service_key: string): AxiosPromise<any> => {
   return axios.get('/api/v1/oauth2/start/', { 'params': { service_key } })
 }
 

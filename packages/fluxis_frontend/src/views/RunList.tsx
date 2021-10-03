@@ -36,7 +36,7 @@ class RunList extends React.Component<IRunListProps, IRunListState> {
     getAllFlowRuns().then(res => {
       this.setState(
         {
-          runs: res
+          runs: res.data
         }
       )
     })

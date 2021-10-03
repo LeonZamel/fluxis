@@ -31,7 +31,7 @@ axios.interceptors.request.use(function (config) {
   if (token) {
     // This is the correct formatting for the bearer token expected by drf
     // https://www.django-rest-framework.org/api-guide/authentication/
-    config.headers.Authorization = `Token ${token}`;
+    config.headers!.Authorization = `Token ${token}`;
   }
   return config;
 });

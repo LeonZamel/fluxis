@@ -130,7 +130,7 @@ export const onLinkComplete: (chartUpdateCallback: any, buildNode: any, flowId: 
       let fpId = chart.links[linkId].from.portId
       let fp = chart.nodes[fnId].ports[fpId]
       let tp = chart.nodes[toNodeId].ports[toPortId]
-      let resp: Promise<string | null> | undefined = undefined
+      let resp
       if (fnId !== toNodeId && (tp.properties.constant_value == undefined || !tp.properties.constant_value!.enabled)) {
         if (fp.type === "output" && tp.type === "input") {
           chart.links[linkId].to = {
@@ -149,7 +149,8 @@ export const onLinkComplete: (chartUpdateCallback: any, buildNode: any, flowId: 
         } else {
           return chart
         }
-        resp!.then(recId => {
+        resp!.then(response => {
+          let recId = response.data.id
           if (recId !== null) {
             chart.links[recId] = chart.links[linkId]
             chart.links[recId].id = recId
@@ -296,8 +297,9 @@ export const onCanvasDrop: (chartUpdateCallback: any, buildNode: any, flowId: st
   dummy.position = { x: Math.round(position.x), y: Math.round(position.y) }
   chart.nodes[dummy.id] = dummy
   var beNode = convertNodeF2B(dummy);
-  sendCreateNode(beNode, flowId).then((recId) => {
+  sendCreateNode(beNode, flowId).then(resp => {
     // Delete the dummy, either replaced with new node, or none
+    let recId = resp.data.id
     delete chart.nodes[dummy.id]
     if (recId !== null) {
       // We need to rebuild the node with the actual id so all the parameter callbacks work

@@ -88,17 +88,17 @@ class TriggerList extends React.Component<ITriggerListProps, ITriggerListState> 
 
   handleCreate = () => {
     if (this.state.createTriggerType != "") {
-      let resp;
+      let promise;
       switch (this.state.createTriggerType) {
         case 'Http Endpoint':
-          resp = sendCreateHttpEndpointTrigger(this.state.createTriggerName, this.state.httpEndpointPath)
+          promise = sendCreateHttpEndpointTrigger(this.state.createTriggerName, this.state.httpEndpointPath)
           break;
         case "Timer":
-          resp = sendCreateTimerTrigger(this.state.createTriggerName, this.state.timerInterval, this.state.timerRepetitions)
+          promise = sendCreateTimerTrigger(this.state.createTriggerName, this.state.timerInterval, this.state.timerRepetitions)
           break;
         default: return;
       }
-      resp.then(res => {
+      promise.then(res => {
         this.setState({ triggers: [...this.state.triggers, res.data] })
         this.setState({ dialogOpen: false });
       }).catch()
@@ -218,10 +218,10 @@ class TriggerList extends React.Component<ITriggerListProps, ITriggerListState> 
             <DialogActions>
               <Button onClick={this.handleClose} color="primary">
                 Cancel
-            </Button>
+              </Button>
               <Button onClick={this.handleCreate} color="primary">
                 Create
-            </Button>
+              </Button>
             </DialogActions>
           </Dialog>
         </div>
