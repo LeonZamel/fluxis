@@ -2,6 +2,7 @@ import io
 import os
 import threading
 from collections import Counter
+import importlib
 
 import requests
 from authentication.services.oauth2.oauth2_providers import OAUTH2_PROVIDERS
@@ -14,14 +15,13 @@ from fluxis_engine.core.observer.observer import Observer
 from fluxis_engine.core.parameter_config import ParameterType
 from fluxis_engine.core.port_config import PortType
 from fluxis_engine.core.run_end_reasons import FlowRunEndReason, NodeRunEndReason
+from fluxis_engine.core.flow import Flow
+from fluxis_engine.core.node import Node
 from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer
 
 import core.data_store as data_store
-import core.flow_runners.thread_runner as thread_runner
 import core.models as db_models
-
-from .flow_runners.thread_runner import thread_runner
 
 
 # Must be a tuple of Actual value, human readable value
@@ -74,6 +74,45 @@ def refresh_oauth2credentials(creds):
         creds.save()
 
 
+def build_flow_from_serialized(serialized_flow: dict):
+    flow_id = serialized_flow["id"]
+    nodes = serialized_flow["nodes"]
+    edges = serialized_flow["edges"]
+    credentials = serialized_flow["credentials"]
+
+    g = Flow()
+
+    for node in nodes:
+        # Add nodes and set parameters
+        params = {}
+        if node["credentials"]:
+            params["credentials"] = credentials[node["credentials"]["id"]]
+        for param in node["parameters"]:
+            params[param["key"]] = param["value"]
+        node_function = NODE_FUNCTIONS_DEFINITIONS[node["function"]](**params)
+        has_trigger_port = node["trigger_port"]
+        beNode = Node(node_function, has_trigger_port)
+        g.add_node(beNode, node["id"])
+
+        for port in node["in_ports"]:
+            # Add constant values
+            if port["constant_value"]:
+                g.get_node_by_id(node["id"]).in_ports[port["key"]].data = port[
+                    "constant_value"
+                ]["value"]
+                g.get_node_by_id(node["id"]).in_ports[port["key"]].locked = True
+
+    for edge in edges:
+        g.add_edge_by_id_key(
+            edge["from_port"]["node"],
+            edge["from_port"]["key"],
+            edge["to_port"]["node"],
+            edge["to_port"]["key"],
+        )
+
+    return g
+
+
 def run_flow(db_flowrun_id):
     db_flowrun = db_models.FlowRun.objects.get(pk=db_flowrun_id)
     # -- Flow components --
@@ -120,12 +159,9 @@ def run_flow(db_flowrun_id):
     serialized_flow["run_id"] = str(db_flowrun.id)
     serialized_flow["credentials"] = serialized_credentials
 
-    # Run the flow
-    if settings.USE_LAMBDA:
-        requests.post(
-            os.environ.get("LAMBDA_RUN_URL"),
-            json=serialized_flow,
-            headers={"x-api-key": os.environ.get("LAMBDA_API_KEY")},
-        )
-    else:
-        thread_runner(serialized_flow, db_flowrun_id)
+    # Get the backend to run the flow with
+    module_name, function_name = settings.FLUXIS_RUNNER.rsplit(".", 1)
+    runner_module = importlib.import_module(module_name)
+    runner = getattr(runner_module, function_name)
+
+    runner(serialized_flow)

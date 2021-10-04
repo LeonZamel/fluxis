@@ -22,7 +22,7 @@ export function convertNodeDefB2F(key: string, nodeDef: IBENodeDef): INodeDef {
     key,
     name: nodeDef.name,
     is_trigger_node: nodeDef.is_trigger_node,
-    category: nodeDef.category,
+    category: nodeDef.category ? nodeDef.category : "No category",
     in_ports,
     out_ports,
     parameters,

@@ -344,7 +344,7 @@ class FlowBuild extends React.Component<IFlowBuildProps, IFlowBuildState> {
     FlowRunData.loadNodeData(this.state.runData!.runId, nodeRunId).then((resp: any) => {
       this.setState(prevState => {
         let newRunData: FlowRunData = { ...prevState.runData! };
-        FlowRunData.setNodeData(newRunData, nodeRunId, resp)
+        FlowRunData.setNodeData(newRunData, nodeRunId, resp.data)
         return { runData: newRunData }
       })
     })

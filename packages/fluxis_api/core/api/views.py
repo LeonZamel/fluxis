@@ -113,6 +113,7 @@ SERIALIZABLE_NODE_FUNCTIONS_DEFINITIONS = {}
 for func_def in NODE_FUNCTIONS_DEFINITIONS.values():
     serialized_func_def = {}
     serialized_func_def["key"] = func_def.name
+    serialized_func_def["category"] = func_def.category
     serialized_func_def["name"] = func_def.name
     serialized_func_def["parameters"] = list(map(asdict, func_def.parameters))
     serialized_func_def["in_ports"] = list(

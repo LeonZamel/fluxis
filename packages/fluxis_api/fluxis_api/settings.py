@@ -258,9 +258,13 @@ CACHES = {
     }
 }
 
+# STORAGE
+MEDIA_ROOT = os.path.join(BASE_DIR, "data")
+
 # FLUXIS
-FLUXIS_STORAGE_DIRECTORY = os.environ.get("FLUXIS_STORAGE_DIRECTORY", "storage")
-USE_LAMBDA = False
+# The final storage directory will be MEDIA_ROOT/FLUXIS_STORAGE_DIRECTORY/
+FLUXIS_STORAGE_DIRECTORY = os.environ.get("FLUXIS_STORAGE_DIRECTORY", "fluxis_storage")
+FLUXIS_RUNNER = "core.flow_runners.thread_runner.ThreadRunner"
 FLUXIS_NODEFUNCTION_PATHS = []
 
 # Used for run logs, uploaded files etc.

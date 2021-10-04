@@ -1,12 +1,10 @@
-from fluxis_engine.core.flow import Flow
+from abc import ABC
 
 
-class FlowRunner:
-    def __init__(self, flow: Flow):
-        self.flow = flow
+class FlowRunner(ABC):
+    """
+    Abstract class for a flow runner
+    Currently doesn't do anything
+    """
 
-    def run(self):
-        """
-        Override this
-        """
-        pass
+    pass

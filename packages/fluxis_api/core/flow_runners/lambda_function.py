@@ -5,14 +5,25 @@ from datetime import datetime
 import requests
 from pytz import utc
 
+from core.adapter import build_flow_from_serialized
+
 from fluxis_engine.core.flow import (
-    FlowBuilder,
     FlowRunEndEvent,
     FlowRunErrorEvent,
     FlowRunStartEvent,
 )
 from fluxis_engine.core.observer.eventtypes import EventType
 from fluxis_engine.core.observer.observer import Observer
+from .flow_runner import FlowRunner
+
+
+class LambdaRunner(FlowRunner):
+    def __init__(self, serialized_flow):
+        requests.post(
+            os.environ.get("LAMBDA_RUN_URL"),
+            json=serialized_flow,
+            headers={"x-api-key": os.environ.get("LAMBDA_API_KEY")},
+        )
 
 
 def get_aware_time():
@@ -66,7 +77,7 @@ def lambda_handler(event, context):
     api_key = os.environ.get("API_KEY")
     callback_url = os.environ.get("CALLBACK_URL") + f"{run_id}/"
 
-    g = FlowBuilder.build(serialized_flow)
+    g = build_flow_from_serialized(serialized_flow)
 
     """
     node_run_start_ob = Observer(

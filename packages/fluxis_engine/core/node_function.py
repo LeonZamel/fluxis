@@ -8,20 +8,6 @@ from fluxis_engine.core.parameter_config import ParameterConfigs
 from fluxis_engine.core.port_config import PortConfig, PortConfigs
 
 
-class NODE_CATEGORIES(Enum):
-    TRIGGER = "Trigger"
-    CONTROL_FLOW = "Control Flow"
-    TABLE = "Table"
-    OBJECT = "Object"
-    ARRAY = "Array"
-    MATH = "Math"
-    LOGIC = "Logic"
-    TEXT = "Text"
-    INTELLIGENCE = "Intelligence"
-    DATA_IN = "Data sources"
-    DATA_OUT = "Data destinations"
-
-
 class NodeFunction(abc.ABC):
     """
     A NodeFunction defines the function and the parameters it needs
@@ -30,7 +16,7 @@ class NodeFunction(abc.ABC):
     # TODO: Add port names
     name: str = ""
     key: str
-    category: str
+    category: str = None
     description: str = ""  # Should be a one sentence description
     explanation: str = ""  # Longer explanation on how to use
 
@@ -118,7 +104,7 @@ def node_function(name: str = None, description: str = None, explanation: str = 
                 out_ports["output"].data = ret
 
             def __call__(self, *args):
-                ret = self.func(*args)
+                ret = func(*args)
                 return ret
 
         return NF

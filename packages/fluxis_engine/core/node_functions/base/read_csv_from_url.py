@@ -2,10 +2,12 @@ import pandas as pd
 
 from fluxis_engine.core.node_function import NodeFunction
 from fluxis_engine.core.port_config import PortConfig
+from fluxis_engine.core.node_categories import NODE_CATEGORIES
 
 
 class ReadCSVFromURL(NodeFunction):
     name = "Read CSV from URL"
+    category = NODE_CATEGORIES.DATA_IN
     in_ports_conf = [
         PortConfig(
             key="url",

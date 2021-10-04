@@ -3,7 +3,6 @@ import time
 from collections import defaultdict
 from logging import getLogger
 
-from fluxis_engine.core.node_functions.node_functions import NODE_FUNCTIONS
 
 from .node import Node
 from .observer.eventtypes import (
@@ -114,44 +113,3 @@ class Flow(Observable):
         from_port = from_node.out_ports[from_port_key]
         to_port = to_node.in_ports[to_port_key]
         self.add_edge(from_port, to_port)
-
-
-class FlowBuilder:
-    @staticmethod
-    def build(serialized_flow: dict):
-        flow_id = serialized_flow["id"]
-        nodes = serialized_flow["nodes"]
-        edges = serialized_flow["edges"]
-        credentials = serialized_flow["credentials"]
-
-        g = Flow()
-
-        for node in nodes:
-            # Add nodes and set parameters
-            params = {}
-            if node["credentials"]:
-                params["credentials"] = credentials[node["credentials"]["id"]]
-            for param in node["parameters"]:
-                params[param["key"]] = param["value"]
-            node_function = NODE_FUNCTIONS[node["function"]][0](**params)
-            has_trigger_port = node["trigger_port"]
-            beNode = Node(node_function, has_trigger_port)
-            g.add_node(beNode, node["id"])
-
-            for port in node["in_ports"]:
-                # Add constant values
-                if port["constant_value"]:
-                    g.get_node_by_id(node["id"]).in_ports[port["key"]].data = port[
-                        "constant_value"
-                    ]["value"]
-                    g.get_node_by_id(node["id"]).in_ports[port["key"]].locked = True
-
-        for edge in edges:
-            g.add_edge_by_id_key(
-                edge["from_port"]["node"],
-                edge["from_port"]["key"],
-                edge["to_port"]["node"],
-                edge["to_port"]["key"],
-            )
-
-        return g
