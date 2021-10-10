@@ -1,3 +1,4 @@
+from io import StringIO
 import pandas as pd
 
 from fluxis_engine.core.node_function import NodeFunction
@@ -5,14 +6,15 @@ from fluxis_engine.core.port_config import PortConfig
 from fluxis_engine.core.node_categories import NODE_CATEGORIES
 
 
-class ReadCSVFromURL(NodeFunction):
-    name = "Read CSV from URL"
+class ParseCSV(NodeFunction):
+    key = "parse_csv"
+    name = "Parse CSV"
     category = NODE_CATEGORIES.DATA_IN
     in_ports_conf = [
         PortConfig(
-            key="url",
-            name="URL",
-            description="URL to get the CSV from",
+            key="text",
+            name="Text",
+            description="The text to parse",
         ),
     ]
     out_ports_conf = [
@@ -29,8 +31,6 @@ class ReadCSVFromURL(NodeFunction):
     def run(
         self, in_ports: dict, out_ports: dict, in_ports_ref: dict, out_ports_ref: dict
     ):
-        try:
-            df = pd.read_csv(in_ports["url"])
-            out_ports["table"] = df
-        except Exception as e:
-            return "Couldn't access url"
+        data = StringIO(in_ports["text"])
+        df = pd.read_csv(data)
+        out_ports["table"] = df

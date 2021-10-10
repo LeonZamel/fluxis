@@ -22,6 +22,9 @@ export function getErrorMessage(error: any): string {
       case 500:
         return "Server Error"
       case 400:
+        if (typeof error.response.data === 'string') {
+          return error.response.data
+        }
         return ([].concat.apply([], Object.values(error.response.data))).join("\n")
       default: return error.message
     }

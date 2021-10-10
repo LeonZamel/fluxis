@@ -112,7 +112,7 @@ class RunFlowView(APIView):
 SERIALIZABLE_NODE_FUNCTIONS_DEFINITIONS = {}
 for func_def in NODE_FUNCTIONS_DEFINITIONS.values():
     serialized_func_def = {}
-    serialized_func_def["key"] = func_def.name
+    serialized_func_def["key"] = func_def.key
     serialized_func_def["category"] = func_def.category
     serialized_func_def["name"] = func_def.name
     serialized_func_def["parameters"] = list(map(asdict, func_def.parameters))
@@ -125,7 +125,7 @@ for func_def in NODE_FUNCTIONS_DEFINITIONS.values():
     serialized_func_def["credentials"] = (
         asdict(func_def.credentials) if func_def.credentials else None
     )
-    SERIALIZABLE_NODE_FUNCTIONS_DEFINITIONS[func_def.name] = serialized_func_def
+    SERIALIZABLE_NODE_FUNCTIONS_DEFINITIONS[func_def.key] = serialized_func_def
 
 
 class InitView(APIView):

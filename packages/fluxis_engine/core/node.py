@@ -46,18 +46,11 @@ class Node(object):
         in_port_data = {key: port.data for (key, port) in self.in_ports.items()}
         out_port_data = {key: None for (key, port) in self.out_ports.items()}
 
-        error = self.function.pre_run(in_port_data, self.in_ports)
-        if error:
-            return (None, error)
-
-        error = self.function.run(
-            in_port_data, out_port_data, self.in_ports, self.out_ports
-        )
-        if error:
-            return (None, error)
+        self.function.pre_run(in_port_data, self.in_ports)
+        self.function.run(in_port_data, out_port_data, self.in_ports, self.out_ports)
 
         for (key, val) in out_port_data.items():
             if val is not None:
                 self.out_ports[key].data = val
 
-        return (out_port_data, error)
+        return out_port_data

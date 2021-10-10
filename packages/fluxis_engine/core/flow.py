@@ -3,7 +3,7 @@ import time
 from collections import defaultdict
 from logging import getLogger
 
-
+from .fluxis_exception import FluxisException
 from .node import Node
 from .observer.eventtypes import (
     FlowRunEndEvent,
@@ -55,10 +55,14 @@ class Flow(Observable):
             self.fire(NodeRunStartEvent(node.id))
 
             try:
-                (output, error) = node.run()
+                output = node.run()
+            except FluxisException as expected_exception:
+                # Error was somewhat expected, give it back as information
+                error = expected_exception
             except Exception as uncaught_error:
-                # Error was not caught by function, this should not happen
-                error = uncaught_error
+                # Error was not not expected, this should not happen
+                error = "Unknown error. Please contact an administrator."
+                logger.warning(f"Uncaught error: {uncaught_error}")
 
             if error:
                 self.fire(NodeRunErrorEvent(node.id, error))
@@ -70,7 +74,7 @@ class Flow(Observable):
             node_run_count += 1
             self.fire(NodeRunEndEvent(node.id, output, NodeRunEndReason.DONE))
 
-        logger.info(
+        logger.debug(
             "Ran "
             + str(node_run_count)
             + " nodes in "

@@ -35,16 +35,16 @@ PORT_TYPE_CHOICES = [(port_type.value, port_type.value) for port_type in PortTyp
 ALL_IMPORTED_NODE_FUNCTIONS = NODE_FUNCTIONS
 
 
-NODE_FUNCTIONS_DEFINITIONS = {f.name: f for f in ALL_IMPORTED_NODE_FUNCTIONS}
+NODE_FUNCTIONS_DEFINITIONS = {f.key: f for f in ALL_IMPORTED_NODE_FUNCTIONS if f.key}
 
 
-all_names = list(map(lambda f: f.name, NODE_FUNCTIONS_DEFINITIONS.values()))
-(most_key, most_count), *rest = Counter(all_names).most_common()
-assert most_count <= 1, f"Node function name '{most_key}' exists {most_count} times!"
+all_keys = list(map(lambda f: f.key, NODE_FUNCTIONS_DEFINITIONS.values()))
+(most_key, most_count), *rest = Counter(all_keys).most_common()
+assert most_count <= 1, f"Node function key '{most_key}' exists {most_count} times!"
 
 
 NODE_FUNCTIONS_CHOICES = [
-    (nf.name, nf.name) for nf in NODE_FUNCTIONS_DEFINITIONS.values()
+    (nf.key, nf.name) for nf in NODE_FUNCTIONS_DEFINITIONS.values()
 ]
 
 

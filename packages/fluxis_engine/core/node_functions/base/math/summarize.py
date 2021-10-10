@@ -1,14 +1,15 @@
 import numpy as np
 import pandas as pd
-
+from fluxis_engine.core.node_categories import NODE_CATEGORIES
 from fluxis_engine.core.node_function import NodeFunction
-from fluxis_engine.core.port_config import PortConfig, PortSuggestion, PortType
-
 from fluxis_engine.core.parameter_config import ParameterConfig, ParameterType
+from fluxis_engine.core.port_config import PortConfig, PortSuggestion, PortType
 
 
 class Summarize(NodeFunction):
+    key = "summarize"
     name = "Summarize"
+    category = NODE_CATEGORIES.TABLE
     in_ports_conf = [
         PortConfig(
             key="table_in",
@@ -24,12 +25,6 @@ class Summarize(NodeFunction):
             suggestion=PortSuggestion(
                 how="from_port", from_port="table_in", getter="column_names"
             ),
-        ),
-        PortConfig(
-            key="summarize_columns",
-            name="Columns",
-            description="Which columns to summarize",
-            data_type=PortType.STRING_ARRAY,
         ),
     ]
     out_ports_conf = [

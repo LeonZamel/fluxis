@@ -364,6 +364,7 @@ class FlowBuild extends React.Component<IFlowBuildProps, IFlowBuildState> {
         runs: [{
           id: res.data.id,
           flow: { id: "", name: "" },
+          datetime_created: res.data.datetime_created,
           datetime_start: res.data.datetime_start,
           datetime_end: res.data.datetime_end,
           node_run_count: 0,
@@ -432,7 +433,7 @@ class FlowBuild extends React.Component<IFlowBuildProps, IFlowBuildState> {
       <Box maxHeight='100%' display='flex' flexDirection='column'>
         <Box m={2} flexGrow='0'>
           <Box display='flex' flexDirection='row' justifyContent='space-between'><Typography variant='h6'>Run results</Typography><Button size="small" variant="contained" color="primary" onClick={() => this.setState(prevState => ({ testing: false, currentRun: null, currentRunId: "" }))}>Close</Button></Box>
-          <Typography variant='subtitle1'>{formatRunStart(this.state.currentRun!)}</Typography>
+          {this.renderRunEntry(this.state.currentRun!)}
           <Divider />
         </Box>
         <Box flexGrow='1' overflow='auto'>
@@ -794,7 +795,7 @@ class FlowBuild extends React.Component<IFlowBuildProps, IFlowBuildState> {
     return (
       <Box>
         <RunStatus run={run} />
-        <ListItemText primary={formatRunStart(run)} secondary={formatRunDuration(run.datetime_start, run.datetime_end)} />
+        <ListItemText primary={formatRunStart(run)} secondary={formatRunDuration(run.datetime_created, run.datetime_end)} />
       </Box>
     )
   }

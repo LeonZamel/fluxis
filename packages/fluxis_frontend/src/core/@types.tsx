@@ -187,6 +187,7 @@ export interface IBEShallowFlowRun {
   // Shallow, so that no information about the node runs has to be known
   id: string,
   flow: IBEShallowFlow,
+  datetime_created: string,
   datetime_start?: string,
   datetime_end?: string,
   node_run_count: number,

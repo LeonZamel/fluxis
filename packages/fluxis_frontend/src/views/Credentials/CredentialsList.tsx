@@ -12,6 +12,10 @@ import { getAllCredentials, sendDeleteCredentials, getOAuth2URL, getOAuth2Creden
 import { Credentials, CredentialsService } from '../../core/@types';
 import { TabContext, TabPanel } from '@material-ui/lab';
 
+import { alertActions } from '../../store/actions/alert.actions';
+import { connect } from 'react-redux';
+import { getErrorMessage } from '../../store/utility';
+
 const useStyles = makeStyles(theme => ({
   root: {
     padding: theme.spacing(3),
@@ -19,7 +23,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 
-export default function CredentialsList() {
+function CredentialsList(props: any) {
   const classes = useStyles()
 
   const [loading, setLoading] = useState(true);
@@ -157,10 +161,10 @@ export default function CredentialsList() {
                 <DialogActions>
                   <Button onClick={() => setDialogOpen(false)} color="primary">
                     Cancel
-            </Button>
+                  </Button>
                   <Button onClick={handleDelete} color="default">
                     Delete
-            </Button>
+                  </Button>
                 </DialogActions>
               </Box>
               :
@@ -198,10 +202,10 @@ export default function CredentialsList() {
                       <DialogActions>
                         <Button onClick={() => setDialogOpen(false)} color="default">
                           Cancel
-                      </Button>
+                        </Button>
                         <Button type='submit' color="primary" disabled={createCredentialsType === ""}>
                           Create
-                      </Button>
+                        </Button>
                       </DialogActions>
                     </form>
                   </TabPanel>
@@ -217,6 +221,8 @@ export default function CredentialsList() {
                           setCreateCredentialsType(e.target.value)
                           getOAuth2URL(e.target.value).then(res => {
                             setAuthUrl(res.data.url)
+                          }).catch(reason => {
+                            props.alert_error(getErrorMessage(reason))
                           })
                         }}
                       >
@@ -224,8 +230,8 @@ export default function CredentialsList() {
                           <MenuItem value={service.key}>{service.name}</MenuItem>
                         )}
                       </Select>
-                  You will be redirected to the service's login page
-                </DialogContent>
+                      You will be redirected to the service's login page
+                    </DialogContent>
                     <DialogActions>
                       <Button onClick={() => setDialogOpen(false)} color="default">
                         Cancel
@@ -243,3 +249,11 @@ export default function CredentialsList() {
     </div >
   );
 }
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    alert_error: (message: string) => dispatch(alertActions.error(message))
+  }
+}
+
+export default connect(null, mapDispatchToProps)(CredentialsList)

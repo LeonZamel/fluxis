@@ -143,6 +143,7 @@ class FlowRun(models.Model):
     successful = models.BooleanField(blank=True, default=True)
     message = models.TextField(blank=True, null=True)
     node_run_count = models.IntegerField(blank=True, null=True)
+    datetime_created = models.DateTimeField(auto_now_add=True)
     datetime_start = models.DateTimeField(blank=True, null=True)
     datetime_end = models.DateTimeField(blank=True, null=True)
 

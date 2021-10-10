@@ -1,13 +1,15 @@
 import numpy as np
-
+import pandas as pd
+from fluxis_engine.core.fluxis_exception import FluxisException
 from fluxis_engine.core.node_function import NodeFunction
-from fluxis_engine.core.port_config import PortConfig, PortType, PortSuggestion
-
-from .utils import safe_eval_on_dataframe
+from fluxis_engine.core.port_config import PortConfig, PortSuggestion, PortType
+from fluxis_engine.core.node_categories import NODE_CATEGORIES
 
 
 class Filter(NodeFunction):
+    key = "filter"
     name = "Filter"
+    category = NODE_CATEGORIES.TABLE
     in_ports_conf = [
         PortConfig(
             key="table_in",
@@ -39,13 +41,11 @@ class Filter(NodeFunction):
     def run(
         self, in_ports: dict, out_ports: dict, in_ports_ref: dict, out_ports_ref: dict
     ):
-        df = in_ports["table_in"]
+        df: pd.DataFrame = in_ports["table_in"]
         condition = in_ports["condition"]
-        bools = safe_eval_on_dataframe(condition, df)
+        if "@" in condition:
+            raise FluxisException("'@' character is not allowed in the condition.")
         try:
-            if bools.dtype.name == "bool":
-                out_ports["table_out"] = df[bools]
-            else:
-                return "Condition doesn't evaluate to True or False values"
+            out_ports["table_out"] = df.query(condition, local_dict={}, global_dict={})
         except Exception as e:
-            return "Something went wrong evaluating the condition"
+            raise FluxisException(f"Something went wrong evaluating the condition: {e}")

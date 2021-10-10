@@ -19,7 +19,7 @@ from fluxis_engine.core.node_functions.base.object.parse_json import ParseJSON
 from fluxis_engine.core.node_functions.base.object.set_object_value_by_key import (
     SetObjectValueByKey,
 )
-from fluxis_engine.core.node_functions.base.read_csv_from_url import ReadCSVFromURL
+from fluxis_engine.core.node_functions.base.parse_csv import ParseCSV
 from fluxis_engine.core.node_functions.base.select_columns import SelectColumns
 from fluxis_engine.core.node_functions.base.table.add_column import AddColumn
 from fluxis_engine.core.node_functions.base.table.join_tables import JoinTables
@@ -69,7 +69,7 @@ NODE_FUNCTIONS = [
     DecisionTreeRegressor,
     Predict,
     HTTPRequest,
-    ReadCSVFromURL,
+    ParseCSV,
     ReadGoogleSheet,
     QueryPostgresql,
     ReadGoogleAnalyticsReport,

@@ -13,9 +13,8 @@ class NodeFunction(abc.ABC):
     A NodeFunction defines the function and the parameters it needs
     """
 
-    # TODO: Add port names
+    key: str = None
     name: str = ""
-    key: str
     category: str = None
     description: str = ""  # Should be a one sentence description
     explanation: str = ""  # Longer explanation on how to use
@@ -63,6 +62,7 @@ def node_function(name: str = None, description: str = None, explanation: str = 
 
     def inner(func):
         class NF(NodeFunction):
+            key = func.__name__
             name = name or func.__name__
             description = (
                 description or func.__doc__

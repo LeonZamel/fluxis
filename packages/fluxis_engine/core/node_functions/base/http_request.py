@@ -1,11 +1,13 @@
 import requests
-
+from fluxis_engine.core.node_categories import NODE_CATEGORIES
 from fluxis_engine.core.node_function import NodeFunction
 from fluxis_engine.core.port_config import PortConfig
 
 
 class HTTPRequest(NodeFunction):
+    key = "http_get_request"
     name = "Http Request"
+    category = NODE_CATEGORIES.DATA_IN
     in_ports_conf = [
         PortConfig(
             key="url",
@@ -14,13 +16,8 @@ class HTTPRequest(NodeFunction):
         ),
         PortConfig(
             key="parameters",
-            name="Parameters",
-            description="Parameters to pass in the url",
-        ),
-        PortConfig(
-            key="data",
-            name="Data",
-            description="Data to pass in the request",
+            name="Parameters/Data",
+            description="Parameters/Data to pass in the request either as get parameters or additional data",
         ),
     ]
     out_ports_conf = [
@@ -28,7 +25,12 @@ class HTTPRequest(NodeFunction):
             key="response",
             name="Response",
             description="Response",
-        )
+        ),
+        PortConfig(
+            key="data",
+            name="Data",
+            description="Response Data",
+        ),
     ]
 
     def __init__(self):
@@ -39,10 +41,6 @@ class HTTPRequest(NodeFunction):
     ):
         url = in_ports["url"]
         parameters = in_ports["parameters"]
-        data = in_ports["data"]
-
-        response = requests.get(url, params=parameters).json()
-
-        response = requests.post(url, data=data).json()
-
+        response = requests.get(url, params=parameters)
         out_ports["response"] = response
+        out_ports["data"] = response.text
