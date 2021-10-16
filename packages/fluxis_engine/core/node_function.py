@@ -60,15 +60,19 @@ def node_function(name: str = None, description: str = None, explanation: str = 
     Decorator to turn a regular function into a NodeFunction object that can be used by the api.
     """
 
+    name_ = name
+    description_ = description
+    explanation_ = explanation
+
     def inner(func):
         class NF(NodeFunction):
             key = func.__name__
-            name = name or func.__name__
+            name = name_ or func.__name__
             description = (
-                description or func.__doc__
+                description_ or func.__doc__
             )  # Should be a one sentence description
             explanation = (
-                explanation or func.__doc__
+                explanation_ or func.__doc__
             )  # Longer explanation on how to use
 
             in_ports_conf: PortConfigs = []
@@ -80,7 +84,7 @@ def node_function(name: str = None, description: str = None, explanation: str = 
             is_trigger_node: bool = False
 
             func_sig = signature(func)
-            for param_name, parameter in func_sig.parameters:
+            for param_name, parameter in func_sig.parameters.items():
                 in_ports_conf.append(
                     PortConfig(key=param_name, name=param_name, description="")
                 )
@@ -88,7 +92,7 @@ def node_function(name: str = None, description: str = None, explanation: str = 
             out_ports_conf.append(PortConfig("output", "Output", ""))
 
             def __init__(self):
-                pass
+                super().__init__(self.in_ports_conf, self.out_ports_conf)
 
             def run(
                 self,
@@ -101,7 +105,7 @@ def node_function(name: str = None, description: str = None, explanation: str = 
                 for data in in_ports.values():
                     args.append(data)
                 ret = self(*args)
-                out_ports["output"].data = ret
+                out_ports["output"] = ret
 
             def __call__(self, *args):
                 ret = func(*args)

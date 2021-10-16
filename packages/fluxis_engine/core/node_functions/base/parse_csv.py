@@ -9,7 +9,7 @@ from fluxis_engine.core.node_categories import NODE_CATEGORIES
 class ParseCSV(NodeFunction):
     key = "parse_csv"
     name = "Parse CSV"
-    category = NODE_CATEGORIES.DATA_IN
+    category = NODE_CATEGORIES.TABLE
     in_ports_conf = [
         PortConfig(
             key="text",

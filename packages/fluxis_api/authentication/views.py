@@ -1,3 +1,5 @@
+import logging
+
 from django.http.response import (
     HttpResponse,
     HttpResponseBadRequest,
@@ -27,6 +29,8 @@ from .serializers import (
 from .services.database.database_providers import DATABASE_PROVIDERS_CHOICE
 from .services.oauth2.oauth2_providers import OAUTH2_PROVIDERS, OAUTH2_PROVIDERS_CHOICE
 from .services.service_providers import SERVICE_PROVIDERS_CHOICE
+
+logger = logging.getLogger(__name__)
 
 
 class IsOwnerOrReject(permissions.BasePermission):
@@ -85,6 +89,7 @@ class OAuth2Start(APIView):
         try:
             provider = provider()
         except KeyError as e:
+            logger.warning(f"Error while starting OAuth flow: {e}")
             return Response(
                 f"Internal error", status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

@@ -2,10 +2,13 @@ import pandas as pd
 
 from fluxis_engine.core.node_function import NodeFunction
 from fluxis_engine.core.port_config import PortConfig, PortType
+from fluxis_engine.core.node_categories import NODE_CATEGORIES
 
 
 class JoinTables(NodeFunction):
     name = "Join tables"
+    key = "join_tables"
+    category = NODE_CATEGORIES.TABLE
     in_ports_conf = [
         PortConfig(
             key="table_left",
@@ -41,7 +44,7 @@ class JoinTables(NodeFunction):
     def run(
         self, in_ports: dict, out_ports: dict, in_ports_ref: dict, out_ports_ref: dict
     ):
-        df1 = in_ports["table_left"]
-        df2 = in_ports["table_right"]
+        df1: pd.DataFrame = in_ports["table_left"]
+        df2: pd.DataFrame = in_ports["table_right"]
         column = in_ports["column"]
         out_ports["table_out"] = df1.merge(df2, on=column)

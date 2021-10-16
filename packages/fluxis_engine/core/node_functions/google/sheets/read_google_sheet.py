@@ -10,9 +10,12 @@ from fluxis_engine.core.credentials_config import CredentialsConfig
 from fluxis_engine.core.node_function import NodeFunction
 from fluxis_engine.core.parameter_config import ParameterConfig, ParameterType
 from fluxis_engine.core.port_config import PortConfig, PortType
+from fluxis_engine.core.node_categories import NODE_CATEGORIES
 
 
 class ReadGoogleSheet(NodeFunction):
+    key = "read_google_sheet"
+    category = NODE_CATEGORIES.DATA_IN
     name = "Read Google sheet"
     description = "Reads a Google sheet"
     explanation = "Use this connector when you want to import existing data from one of your Google sheets. \

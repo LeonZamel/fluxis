@@ -1,28 +1,29 @@
+import importlib
 import io
+import logging
 import os
 import threading
 from collections import Counter
-import importlib
 
 import requests
 from authentication.services.oauth2.oauth2_providers import OAUTH2_PROVIDERS
 from authentication.utils import token_expired
 from django.conf import settings
-from fluxis_engine.core.node_functions.node_functions import (
-    NODE_FUNCTIONS,
-)
+from fluxis_engine.core.flow import Flow
+from fluxis_engine.core.node import Node
+from fluxis_engine.core.node_function import NodeFunction
+from fluxis_engine.core.node_functions.node_functions import NODE_FUNCTIONS
 from fluxis_engine.core.observer.observer import Observer
 from fluxis_engine.core.parameter_config import ParameterType
 from fluxis_engine.core.port_config import PortType
 from fluxis_engine.core.run_end_reasons import FlowRunEndReason, NodeRunEndReason
-from fluxis_engine.core.flow import Flow
-from fluxis_engine.core.node import Node
 from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer
 
 import core.data_store as data_store
 import core.models as db_models
 
+logger = logging.getLogger(__name__)
 
 # Must be a tuple of Actual value, human readable value
 PARAMETER_TYPE_CHOICES = [
@@ -33,9 +34,21 @@ PORT_TYPE_CHOICES = [(port_type.value, port_type.value) for port_type in PortTyp
 
 
 ALL_IMPORTED_NODE_FUNCTIONS = NODE_FUNCTIONS
+for path in settings.FLUXIS_NODEFUNCTION_PATHS:
+    spec = importlib.util.spec_from_file_location("module.name", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    for element in module.__dict__.values():
+        if isinstance(element, NodeFunction.__class__):
+            ALL_IMPORTED_NODE_FUNCTIONS.append(element)
 
 
-NODE_FUNCTIONS_DEFINITIONS = {f.key: f for f in ALL_IMPORTED_NODE_FUNCTIONS if f.key}
+NODE_FUNCTIONS_DEFINITIONS = {}
+for f in ALL_IMPORTED_NODE_FUNCTIONS:
+    if f.key:
+        NODE_FUNCTIONS_DEFINITIONS[f.key] = f
+    else:
+        logger.warning(f"Function '{f.name}' has no key!")
 
 
 all_keys = list(map(lambda f: f.key, NODE_FUNCTIONS_DEFINITIONS.values()))
