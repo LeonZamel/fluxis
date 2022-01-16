@@ -16,14 +16,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+os.environ["PYTHONPATH"] = os.environ.get("PYTHONPATH", "") + os.pathsep + os.path.join(os.getcwd(), "packages") 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = os.environ.get("SECRET_KEY", "CHANGE THIS")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", False)
+DEBUG = os.environ.get("DEBUG", True)
 
 ALLOWED_HOSTS = []
 
@@ -101,8 +103,14 @@ WSGI_APPLICATION = "fluxis_api.wsgi.application"
 
 
 # Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'fluxis_db',
+    }
+}
+"""
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
@@ -113,7 +121,7 @@ DATABASES = {
         "PORT": "",
     }
 }
-
+"""
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -240,23 +248,29 @@ if ON_HEROKU:
     django_heroku.settings(locals())
 
 # CELERY
-CELERY_BROKER_URL = "redis://localhost:6379/0"
-CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
-CELERY_ACCEPT_CONTENT = ["application/json"]
-CELERY_RESULT_SERIALIZER = "json"
-CELERY_TASK_SERIALIZER = "json"
+# CELERY_BROKER_URL = "redis://localhost:6379/0"
+# CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+# CELERY_ACCEPT_CONTENT = ["application/json"]
+# CELERY_RESULT_SERIALIZER = "json"
+# CELERY_TASK_SERIALIZER = "json"
 
 # CACHING
 # Used to cache run data
 CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://localhost:6379/1",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': './run_cache/',
     }
 }
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         "LOCATION": "redis://localhost:6379/1",
+#         "OPTIONS": {
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+#         },
+#     }
+# }
 
 # STORAGE
 MEDIA_ROOT = os.path.join(BASE_DIR, "data")
@@ -265,7 +279,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "data")
 # The final storage directory will be MEDIA_ROOT/FLUXIS_STORAGE_DIRECTORY/
 FLUXIS_STORAGE_DIRECTORY = os.environ.get("FLUXIS_STORAGE_DIRECTORY", "fluxis_storage")
 FLUXIS_RUNNER = "core.flow_runners.thread_runner.ThreadRunner"
-FLUXIS_NODEFUNCTION_PATHS = os.environ.get("FLUXIS_NODEFUNCTION_PATHS").split(":")
+FLUXIS_NODEFUNCTION_PATHS = os.environ.get("FLUXIS_NODEFUNCTION_PATHS", "").split(":")
 
 # Used for run logs, uploaded files etc.
 USE_S3_COMPAT_STORAGE = os.environ.get("USE_S3_COMPAT_STORAGE", False)

@@ -5,6 +5,7 @@ from fluxis_engine.core.port_config import PortConfig, PortType, PortSuggestion
 
 class Sort(NodeFunction):
     name = "Sort"
+    key = "sort"
     in_ports_conf = [
         PortConfig(
             key="table_in",

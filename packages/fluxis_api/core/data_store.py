@@ -1,21 +1,17 @@
 import json
+import os
 import pickle
 from enum import Enum
 from io import StringIO
-import os
 
-import numpy as np
-import pandas as pd
+from django.conf import settings
 from django.core.cache import cache
 from django.core.files.base import ContentFile
-from django.conf import settings
-
-import core.models
 
 
 def get_path_for_noderun(flow_id, flowrun_id, node_id):
     return os.path.join(
-        settings.FLUXIS_STORAGE_DIRECTORY, str(flow_id), str(flowrun_id), str(node_id)
+        settings.FLUXIS_STORAGE_DIRECTORY, str(flow_id)[-12:], str(flowrun_id)[-12:], str(node_id)
     )
 
 

@@ -1,21 +1,26 @@
 import logging
 import threading
 
-from core.adapter import build_flow_from_serialized
 import core.data_store as data_store
 import core.models
+import core.models as db_models
 from django.utils import timezone
-from fluxis_engine.core.observer.eventtypes import (
-    EventType,
-    FlowRunEndEvent,
-    FlowRunErrorEvent,
-    FlowRunStartEvent,
-    NodeRunEndEvent,
-    NodeRunErrorEvent,
-    NodeRunStartEvent,
-)
+from fluxis_engine.core.flow import Flow
+from fluxis_engine.core.node import Node
+from fluxis_engine.core.node_function import NodeFunction
+from fluxis_engine.core.node_functions.node_functions import NODE_FUNCTIONS
+from fluxis_engine.core.observer.eventtypes import (EventType, FlowRunEndEvent,
+                                                    FlowRunErrorEvent,
+                                                    FlowRunStartEvent,
+                                                    NodeRunEndEvent,
+                                                    NodeRunErrorEvent,
+                                                    NodeRunStartEvent)
 from fluxis_engine.core.observer.observer import Observer
-from fluxis_engine.core.run_end_reasons import FlowRunEndReason, NodeRunEndReason
+from fluxis_engine.core.parameter_config import ParameterType
+from fluxis_engine.core.port_config import PortType
+from fluxis_engine.core.run_end_reasons import (FlowRunEndReason,
+                                                NodeRunEndReason)
+from packages.fluxis_api.core.adapter import NODE_FUNCTIONS_DEFINITIONS
 
 
 def save_output(flowrun, event: NodeRunEndEvent, node_run_db):
@@ -69,14 +74,53 @@ from .flow_runner import FlowRunner
 
 
 class ThreadRunner(FlowRunner):
-    def __init__(self, serialized_flow):
-        self.run(serialized_flow)
+    def __init__(self, db_flowrun):
+        self.run(db_flowrun)
 
-    def run(self, serialized_flow):
-        db_flowrun = core.models.FlowRun.objects.get(pk=serialized_flow["run_id"])
+    def build_flow(self, db_flowrun):
+        # -- Flow components --
+        db_flow = db_flowrun.flow
+        db_nodes = db_models.Node.objects.filter(flow__exact=db_flow)
+        db_config = db_models.FlowConfig.objects.get(flow__exact=db_flow)
+
+        g = Flow()
+
+        db_node: db_models.Node
+        for db_node in db_nodes:
+            # Add nodes and set parameters
+            params = {}
+            if db_node.credentials:
+                params.credentials = db_node.credentials.id
+            for param in db_node.parameters.all():
+                params[param.key] = param.value
+            node_function = NODE_FUNCTIONS_DEFINITIONS[db_node.function](**params)
+
+            node = Node(node_function, False)
+            g.add_node(node, db_node.id)
+
+            for port in db_models.InPort.objects.filter(node__exact=db_node):
+                # Add constant values
+                if hasattr(port, "constant_value"):
+                    g.get_node_by_id(node.id).in_ports[port.key].data = port.constant_value.value
+                    # g.get_node_by_id(node["id"]).in_ports[port["key"]].locked = True
+
+                # Add edges
+                db_edges = db_models.Edge.objects.filter(
+                    to_port__exact=port
+                )
+                for db_edge in db_edges:
+                    g.add_edge_by_id_key(
+                        db_edge.from_port.node.id,
+                        db_edge.from_port.key,
+                        port.node.id,
+                        port.key,
+                    )
+        return g
+
+    def run(self, db_flowrun):
         g = None
         try:
-            g = build_flow_from_serialized(serialized_flow)
+            g = self.build_flow(db_flowrun)
         except Exception as e:
             logging.exception("Couldn't build flow")
             # Couldn't build flow, this should not happen

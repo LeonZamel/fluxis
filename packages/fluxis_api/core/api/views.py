@@ -1,59 +1,35 @@
+import threading
 from dataclasses import asdict
 
+from core.adapter import NODE_FUNCTIONS_DEFINITIONS, run_flow
+from core.models import (ConstantValue, Edge, Flow, FlowConfig, FlowRun,
+                         FlowRunSchedule, HttpEndpointTrigger, InPort, Node,
+                         NodeRun, OutPort, TimerTrigger, Trigger)
 from django.contrib.admin.utils import lookup_field
 from django.contrib.auth.models import AnonymousUser, User
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from requests_oauthlib import OAuth2Session
-from rest_framework import authentication, exceptions, generics, permissions, status
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework import (authentication, exceptions, generics, permissions,
+                            status)
+from rest_framework.generics import (ListCreateAPIView,
+                                     RetrieveUpdateDestroyAPIView)
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from core.adapter import NODE_FUNCTIONS_DEFINITIONS
-from core.models import (
-    ConstantValue,
-    Edge,
-    Flow,
-    FlowConfig,
-    FlowRun,
-    FlowRunSchedule,
-    HttpEndpointTrigger,
-    InPort,
-    Node,
-    NodeRun,
-    OutPort,
-    TimerTrigger,
-    Trigger,
-)
-from core.tasks import dispatch_flowrun
-
-from .serializers import (
-    ConstantValueSerializer,
-    EdgeSerializer,
-    FlowConfigSerializer,
-    FlowCreateSerializer,
-    FlowRunCreateSerializer,
-    FlowRunScheduleSerializer,
-    FlowRunSerializer,
-    FlowRunUpdateSerializer,
-    FlowRunWithNodeRunsSerializer,
-    FlowSerializer,
-    FlowUpdateSerializer,
-    HttpEndpointTriggerSerializer,
-    InPortSerializer,
-    NodeCreateSerializer,
-    NodeRunDataSerializer,
-    NodeRunSerializer,
-    NodeSerializer,
-    NodeUpdateSerializer,
-    OutPortSerializer,
-    ShallowFlowSerializer,
-    TimerTriggerSerializer,
-    TriggerSerializer,
-    UserSerializer,
-)
+from .serializers import (ConstantValueSerializer, EdgeSerializer,
+                          FlowConfigSerializer, FlowCreateSerializer,
+                          FlowRunCreateSerializer, FlowRunScheduleSerializer,
+                          FlowRunSerializer, FlowRunUpdateSerializer,
+                          FlowRunWithNodeRunsSerializer, FlowSerializer,
+                          FlowUpdateSerializer, HttpEndpointTriggerSerializer,
+                          InPortSerializer, NodeCreateSerializer,
+                          NodeRunDataSerializer, NodeRunSerializer,
+                          NodeSerializer, NodeUpdateSerializer,
+                          OutPortSerializer, ShallowFlowSerializer,
+                          TimerTriggerSerializer, TriggerSerializer,
+                          UserSerializer)
 
 
 class LambdaCallbackAuthentication(authentication.BaseAuthentication):
@@ -360,8 +336,12 @@ class FlowRunList(generics.ListCreateAPIView):
         flow = owned_flows.get(pk=self.kwargs["g_pk"])
         if flow:
             instance = serializer.save(flow=flow)
-            # Dispatch via celery task
-            dispatch_flowrun.delay(instance.id)
+            # Run the flow
+            # Start this as a thread so that we can already return a response
+            thread = threading.Thread(
+                target=run_flow, args=(instance.id, )
+            )
+            thread.start()
             # We don't have to return any instance or so, it will be accessed by the
             # create method via serializer.instance
 

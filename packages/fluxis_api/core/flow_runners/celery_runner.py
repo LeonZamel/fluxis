@@ -4,6 +4,11 @@ from celery import shared_task
 from .models import Flow, FlowRun
 from .adapter import run_flow as adapter_run_flow
 
+# TOD
+
+class CeleryRunner:
+    pass
+
 
 @shared_task(ignore_result=True)
 def dispatch_flowrun(flowrun_id):

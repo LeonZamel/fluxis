@@ -5,6 +5,7 @@ from fluxis_engine.core.port_config import PortConfig, PortType
 
 class SelectColumns(NodeFunction):
     name = "Select columns"
+    key = "select_columns"
     in_ports_conf = [
         PortConfig(
             key="table_in",
