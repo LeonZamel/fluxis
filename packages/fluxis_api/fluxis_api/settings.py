@@ -16,8 +16,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-os.environ["PYTHONPATH"] = os.environ.get("PYTHONPATH", "") + os.pathsep + os.path.join(os.getcwd(), "packages") 
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -105,9 +103,9 @@ WSGI_APPLICATION = "fluxis_api.wsgi.application"
 # Database
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'fluxis_db',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": "fluxis_db",
     }
 }
 """
@@ -257,9 +255,9 @@ if ON_HEROKU:
 # CACHING
 # Used to cache run data
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': './run_cache/',
+    "default": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": "./run_cache/",
     }
 }
 # CACHES = {

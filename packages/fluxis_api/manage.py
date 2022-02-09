@@ -3,6 +3,10 @@
 import os
 import sys
 
+# Add the current directory to the path so that all packages are found. I.e. such that fluxis_api finds fluxis_engine
+# If there is nicer way to do this, please let me know. This feels like a hack...
+sys.path.append(os.path.join(os.getcwd(), "packages"))
+
 
 def main():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "fluxis_api.settings")
