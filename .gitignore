@@ -117,6 +117,5 @@ dmypy.json
 node_modules
 
 # Fluxis default stuff
-run_cache
 fluxis_db
-packages/fluxis_api/data
+fluxis_data

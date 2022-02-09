@@ -1,0 +1,61 @@
+{
+    "name": "frontend",
+    "version": "0.1.0",
+    "private": true,
+    "proxy": "http://localhost:8000",
+    "dependencies": {
+        "@date-io/moment": "^2.10.6",
+        "@material-ui/core": "^4.9.10",
+        "@material-ui/icons": "^4.9.1",
+        "@material-ui/lab": "^4.0.0-alpha.56",
+        "@material-ui/pickers": "^3.2.10",
+        "@mrblenny/react-flow-chart": "0.0.12",
+        "@types/jest": "24.0.11",
+        "@types/lodash": "^4.14.149",
+        "@types/node": "11.13.5",
+        "@types/react": "^16.9.34",
+        "@types/react-dom": "16.8.4",
+        "@types/react-redux": "^7.1.7",
+        "@types/react-router-dom": "^4.3.5",
+        "@types/styled-components": "^4.4.3",
+        "@types/uuid": "^3.4.8",
+        "axios": "^0.22.0",
+        "immutability-helper": "^3.1.1",
+        "lodash": "^4.17.15",
+        "moment": "^2.25.3",
+        "moment-timezone": "^0.5.31",
+        "react": "^16.13.1",
+        "react-dom": "^16.13.1",
+        "react-redux": "^7.2.0",
+        "react-router-dom": "^5.1.2",
+        "react-scripts": "^4.0.3",
+        "redux": "^4.0.5",
+        "redux-thunk": "^2.3.0",
+        "styled-components": "^5.2.0",
+        "typeface-roboto": "0.0.54",
+        "uuid": "^3.4.0"
+    },
+    "scripts": {
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject",
+        "postinstall": "npm run build"
+    },
+    "eslintConfig": {
+        "extends": "react-app"
+    },
+    "browserslist": [
+        ">0.2%",
+        "not dead",
+        "not ie <= 11",
+        "not op_mini all"
+    ],
+    "engines": {
+        "node": "^v8.11.4",
+        "npm": "^6.9.0"
+    },
+    "devDependencies": {
+        "typescript": "^3.8.3"
+    }
+}
