@@ -1,4 +1,5 @@
 # Fluxis
+![Demo](https://fluxis.io/static/img/demo-full.png)
 
 ## Getting Started
 0. Install python and npm 
