@@ -1,4 +1,5 @@
 # Fluxis
+Visual data pipelines backed by Python and Pandas
 ![Demo](https://fluxis.io/static/img/demo-full.png)
 
 ## Getting Started
