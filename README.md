@@ -1,8 +1,6 @@
 # Fluxis
 ## Visual data pipelines backed by Python and Pandas
 
-![Demo](https://fluxis.io/static/img/demo-full.png)
-
 ## Getting Started
 0. Install python and npm 
 1. Clone this repository and `cd` into it
